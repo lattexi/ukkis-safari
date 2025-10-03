@@ -30,6 +30,10 @@
   --color-danger-bg: #f5dada;
   --color-danger-badge: #d65252;
   --color-danger-text: #7a1f1f;
+
+  --color-warning-bg: #fff4e5;
+  --color-warning-badge: #ffb84c;
+  --color-warning-text: #7a4f1f;
 }
 
 /* @media (prefers-color-scheme: light) {

@@ -1,16 +1,20 @@
-import { Vehicle } from "@/features/vehicles/components/VehicleList";
 import VehicleStatus from "@/features/vehicles/components/VehicleStatus";
+import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
+import { Vehicle } from "@/shared/types/vehicles";
 import { cn } from "@/shared/utils/cn";
 import { Car, Check } from "lucide-react";
-import { useState } from "react";
+import { useCallback } from "react";
 
 const VehicleCard = ({ id, name, status }: Vehicle) => {
-  const [isSelected, setIsSelected] = useState(false);
+  const isSelected = useVehicleStore((state) =>
+    state.selectedVehicleIds.includes(id),
+  );
+  const toggleVehicle = useVehicleStore((state) => state.toggleVehicle);
 
-  const handleSelect = () => {
-    if (status !== "online") return; // Only allow selection if online
-    setIsSelected(!isSelected);
-  };
+  const handleSelect = useCallback(() => {
+    if (status !== "online") return;
+    toggleVehicle(id);
+  }, [id, status, toggleVehicle]);
 
   return (
     <div

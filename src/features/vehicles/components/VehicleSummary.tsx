@@ -1,5 +1,6 @@
 import { FaPlay } from "react-icons/fa6";
 import { LoadingDots } from "@/shared/components/LoadingDots";
+import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
 // import { RiLoader2Fill } from "react-icons/ri";
 
 type VehicleSummaryProps = {
@@ -8,10 +9,16 @@ type VehicleSummaryProps = {
 };
 
 const vehicleSummary = ({ isLoading, onStart }: VehicleSummaryProps) => {
+  const selectedVehiclesCount = useVehicleStore(
+    (state) => state.selectedVehicleIds.length,
+  );
+
   return (
     <div className="py-4 px-6 bg-white flex absolute bottom-0 w-full shadow-md">
       <div className="p-4 bg-icy-blue/10 rounded-xl items-center justify-center">
-        <p className="text-xl px-2 text-icy-blue font-bold">3</p>
+        <p className="text-xl px-2 text-icy-blue font-bold">
+          {selectedVehiclesCount}
+        </p>
       </div>
 
       <div className="px-4 flex flex-col justify-center ml-4">

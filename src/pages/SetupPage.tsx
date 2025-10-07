@@ -15,7 +15,7 @@ const SetupPage = () => {
     setTimeout(() => {
       setIsLoading(false);
       navigate("/map");
-    }, 3000); // 3 seconds delay
+    }, 2000);
   };
 
   return (

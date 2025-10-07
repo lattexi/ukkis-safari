@@ -1,5 +1,5 @@
 export type Vehicle = {
   id: string;
   name: string;
-  status: "online" | "offline" | "in-service";
+  status: "online" | "offline" | "in-service" | "unknown";
 };

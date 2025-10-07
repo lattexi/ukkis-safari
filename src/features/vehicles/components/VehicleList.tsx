@@ -14,15 +14,41 @@ const VehicleList = ({}: VehicleListProps) => {
 
   useEffect(() => {
     // Fetch vehicle data here if needed
-    // Now we use static data for demonstration
-    const staticVehicles: Vehicle[] = [
-      { id: "TRK-001", name: "Safari Truck Alpha", status: "online" },
-      { id: "TRK-002", name: "Safari Truck Beta", status: "online" },
-      { id: "TRK-003", name: "Safari Truck Gamma", status: "in-service" },
-      { id: "TRK-004", name: "Safari Truck Delta", status: "online" },
-    ];
-    setVehicles(staticVehicles);
-    console.log("Static Vehicles:", staticVehicles);
+    const fetchVehicles = async () => {
+      // const cookies = await cookieStore.getAll();
+      // console.log("Cookies:", cookies);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_TRACCAR_API_URL}/devices`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
+            },
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setVehicles(data);
+          console.log("Fetched Vehicles:", data);
+        } else {
+          console.error("Failed to fetch vehicles:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      }
+    };
+    fetchVehicles();
+    //   // Now we use static data for demonstration
+    //   const staticVehicles: Vehicle[] = [
+    //     { id: "TRK-001", name: "Safari Truck Alpha", status: "online" },
+    //     { id: "TRK-002", name: "Safari Truck Beta", status: "online" },
+    //     { id: "TRK-003", name: "Safari Truck Gamma", status: "in-service" },
+    //     { id: "TRK-004", name: "Safari Truck Delta", status: "online" },
+    //   ];
+    //   setVehicles(staticVehicles);
+    //   console.log("Static Vehicles:", staticVehicles);
   }, []);
 
   return (

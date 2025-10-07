@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import maplibregl from "maplibre-gl";
+import maplibregl, { Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 export default function MapComponent() {
@@ -15,8 +15,16 @@ export default function MapComponent() {
       container: mapContainer.current,
       style: "https://tiles.openfreemap.org/styles/bright",
       center: [28.244297, 64.739724],
-      zoom: 12,
+      zoom: 13,
     });
+
+    new Marker({ color: "red", draggable: true })
+      .setLngLat([28.244297, 64.739724])
+      .addTo(mapRef.current);
+
+    new Marker({ color: "blue", draggable: true })
+      .setLngLat([28.254298, 64.739725])
+      .addTo(mapRef.current);
 
     return () => {
       mapRef.current?.remove();

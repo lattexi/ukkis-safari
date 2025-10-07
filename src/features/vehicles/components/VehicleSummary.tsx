@@ -1,6 +1,7 @@
 import { FaPlay } from "react-icons/fa6";
 import { LoadingDots } from "@/shared/components/LoadingDots";
 import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
+import { cn } from "@/shared/utils/cn";
 // import { RiLoader2Fill } from "react-icons/ri";
 
 type VehicleSummaryProps = {
@@ -28,8 +29,13 @@ const vehicleSummary = ({ isLoading, onStart }: VehicleSummaryProps) => {
 
       <button
         onClick={onStart}
-        disabled={isLoading}
-        className="ml-auto bg-warning-badge text-white px-4 py-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-hover-warning-badge transition-all"
+        disabled={isLoading || selectedVehiclesCount === 0}
+        // className="ml-auto bg-warning-badge text-white px-4 py-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-hover-warning-badge transition-all"
+        className={cn(
+          "ml-auto bg-warning-badge text-white px-4 py-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-hover-warning-badge transition-all",
+          (isLoading || selectedVehiclesCount === 0) &&
+            "opacity-50 cursor-not-allowed hover:scale-100 hover:bg-warning-badge",
+        )}
       >
         {!isLoading ? (
           <>

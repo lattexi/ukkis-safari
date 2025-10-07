@@ -17,7 +17,7 @@ const VehicleList = ({}: VehicleListProps) => {
     // Now we use static data for demonstration
     const staticVehicles: Vehicle[] = [
       { id: "TRK-001", name: "Safari Truck Alpha", status: "online" },
-      { id: "TRK-002", name: "Safari Truck Beta", status: "offline" },
+      { id: "TRK-002", name: "Safari Truck Beta", status: "online" },
       { id: "TRK-003", name: "Safari Truck Gamma", status: "in-service" },
       { id: "TRK-004", name: "Safari Truck Delta", status: "online" },
     ];

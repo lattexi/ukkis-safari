@@ -20,7 +20,6 @@ const VehicleList = ({}: VehicleListProps) => {
       { id: "TRK-002", name: "Safari Truck Beta", status: "offline" },
       { id: "TRK-003", name: "Safari Truck Gamma", status: "in-service" },
       { id: "TRK-003", name: "Safari Truck Gamma", status: "online" },
-      { id: "TRK-003", name: "Safari Truck Gamma", status: "online" },
     ];
     setVehicles(staticVehicles);
     console.log("Static Vehicles:", staticVehicles);

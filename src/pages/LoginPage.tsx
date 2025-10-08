@@ -26,11 +26,30 @@ const LoginPage = () => {
     login();
   }, []);
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center bg-icy-blue">
-      <div>LoginPage</div>
-      <Link to="/setup" className="mt-4 text-icy-mint underline">
-        {`Go to Setup Page ->`}
+    <div
+      className="w-full h-screen flex flex-col items-center justify-center"
+      style={{
+        backgroundImage: "url('src/shared/img/variant.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <Link
+        to="/setup"
+        className="mt-40 text-3xl text-icy-mint underline animate-bounce"
+      >
+        Log In
       </Link>
+      <img
+        src="src/shared/img/tramppa.png"
+        alt="tramppa xddd"
+        className="h-2/5 mt-0 absolute bottom-2"
+      />
+      <img
+        src="src/shared/img/pasithemeasureman.png"
+        alt=""
+        className="h-2/5 mt-14 animate-bounce"
+      />
     </div>
   );
 };

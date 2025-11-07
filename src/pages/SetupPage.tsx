@@ -3,7 +3,8 @@ import Header from "@/shared/components/Header";
 import Searchbar from "@/shared/components/Searchbar";
 import VehicleSummary from "@/features/vehicles/components/VehicleSummary";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { cn } from "@/shared/utils/cn";
 
 const SetupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +21,7 @@ const SetupPage = () => {
 
   return (
     <div className="w-full h-screen bg-icy-mint relative">
-      <Header title="Valitse safarin ajoneuvot" />
+      <Header title="Valitse safarin ajoneuvot" backButton />
       {/* Container for vehicle selection */}
       <div className="p-4 space-y-4">
         <Searchbar placeholder="Hae ajoneuvoa..." />

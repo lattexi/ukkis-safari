@@ -1,6 +1,6 @@
-import EndSafari from "@/features/map/components/endSafari";
+import EndSafari from "@/features/map/components/EndSafari";
 import MapControls from "@/features/map/components/MapControls";
-import SafariLive from "@/features/map/components/safariLive";
+import SafariLive from "@/features/map/components/SafariLive";
 import VehicleStatus from "@/features/map/components/VehicleStatus";
 import MapComponent from "@/features/map/map";
 

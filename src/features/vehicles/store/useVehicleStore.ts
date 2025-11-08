@@ -1,5 +1,6 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { shallow } from "zustand/shallow";
+import { createWithEqualityFn } from "zustand/traditional";
 
 type VehicleId = string;
 
@@ -15,7 +16,7 @@ type VehicleSelectionState = {
   pruneAgainst: (existingIds: VehicleId[]) => void;
 };
 
-const useVehicleStore = create<VehicleSelectionState>()(
+const useVehicleStore = createWithEqualityFn<VehicleSelectionState>()(
   persist(
     (set, get) => ({
       selectedVehicleIds: [],
@@ -47,6 +48,7 @@ const useVehicleStore = create<VehicleSelectionState>()(
       partialize: (state) => ({ selectedVehicleIds: state.selectedVehicleIds }), // only persist selectedVehicleIds
     },
   ),
+  shallow,
 );
 
 export default useVehicleStore;

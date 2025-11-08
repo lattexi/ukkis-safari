@@ -17,7 +17,11 @@ const LoginPage = () => {
       );
       console.log("Login response:", response);
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json(); // { id, name, token, ... }
+        console.log("DATA: " + JSON.stringify(data));
+        if (data?.token) {
+          localStorage.setItem("traccarToken", data.token);
+        }
         console.log("Login successful:", data);
       } else {
         console.error("Login failed:", response.statusText);

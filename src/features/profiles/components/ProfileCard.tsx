@@ -5,21 +5,20 @@ import { useCallback } from "react";
 import { FaRoute } from "react-icons/fa6";
 
 type ProfileCardProps = {
+  id: number;
   name: string;
   safariCount: number;
   uniqueId: string;
 };
 
-const ProfileCard = ({ name, uniqueId, safariCount }: ProfileCardProps) => {
-  const isSelected = useProfileStore(
-    (state) => state.selectedProfileId === uniqueId,
-  );
+const ProfileCard = ({ id, name, uniqueId, safariCount }: ProfileCardProps) => {
+  const isSelected = useProfileStore((state) => state.selectedProfileId === id);
 
   const toggleProfile = useProfileStore((state) => state.toggleProfile);
 
   const handleSelect = useCallback(() => {
-    toggleProfile(uniqueId);
-  }, [uniqueId, toggleProfile]);
+    toggleProfile(id, safariCount);
+  }, [id, safariCount, toggleProfile]);
 
   return (
     <div

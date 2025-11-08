@@ -15,6 +15,7 @@ const ProfileList = () => {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
+              // Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
             },
           },
         );
@@ -39,6 +40,7 @@ const ProfileList = () => {
       {profiles.map((profile) => (
         <ProfileCard
           key={profile.id}
+          id={Number(profile.id)}
           name={profile.name}
           uniqueId={profile.uniqueId}
           safariCount={profile.attributes.Safarit}

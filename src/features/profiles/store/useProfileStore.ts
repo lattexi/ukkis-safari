@@ -1,14 +1,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type ProfileId = string;
+type ProfileId = number;
 
 type ProfileSelectionState = {
   selectedProfileId: ProfileId | null;
+  safariCount: number;
 
   // actions
   setSelectedProfile: (profileId: ProfileId | null) => void;
-  toggleProfile: (profileId: ProfileId) => void;
+  toggleProfile: (profileId: ProfileId, safariCount: number) => void;
   clearSelection: () => void;
 
   // pruneAgainst: (existingIds: ProfileId[]) => void;
@@ -18,17 +19,20 @@ const useProfileStore = create<ProfileSelectionState>()(
   persist(
     (set, get) => ({
       selectedProfileId: null,
+      safariCount: 0,
       setSelectedProfile: (profileId: ProfileId | null) => {
         set(() => ({ selectedProfileId: profileId }));
       },
-      toggleProfile: (profileId: ProfileId) => {
+
+      toggleProfile: (profileId: ProfileId, safariCount: number) => {
         set((state) => ({
           selectedProfileId:
             state.selectedProfileId === profileId ? null : profileId,
+          safariCount: state.selectedProfileId === profileId ? 0 : safariCount,
         }));
       },
       clearSelection: () => {
-        set(() => ({ selectedProfileId: null }));
+        set(() => ({ selectedProfileId: null, safariCount: 0 }));
       },
       // pruneAgainst: (existingIds: ProfileId[]) => {
       //   const profileIds = new Set(existingIds);
@@ -40,7 +44,10 @@ const useProfileStore = create<ProfileSelectionState>()(
     }),
     {
       name: "profile-storage", // name of the item in the storage (must be unique)
-      partialize: (state) => ({ selectedProfileId: state.selectedProfileId }), // only persist selectedProfileId
+      partialize: (state) => ({
+        selectedProfileId: state.selectedProfileId,
+        safariCount: state.safariCount,
+      }), // only persist selectedProfileId
     },
   ),
 );

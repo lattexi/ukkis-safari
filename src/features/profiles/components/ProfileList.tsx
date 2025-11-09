@@ -14,8 +14,8 @@ const ProfileList = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
-              // Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
+              // Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
+              Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
             },
           },
         );

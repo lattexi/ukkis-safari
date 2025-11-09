@@ -17,8 +17,8 @@ const ProfileCard = ({ id, name, uniqueId, safariCount }: ProfileCardProps) => {
   const toggleProfile = useProfileStore((state) => state.toggleProfile);
 
   const handleSelect = useCallback(() => {
-    toggleProfile(id, safariCount);
-  }, [id, safariCount, toggleProfile]);
+    toggleProfile(id, safariCount, name, uniqueId);
+  }, [id, safariCount, name, uniqueId, toggleProfile]);
 
   return (
     <div

@@ -6,22 +6,27 @@ import { useNavigate } from "react-router";
 
 const updateDriverSafariCount = async (
   driverId: number,
+  profileName: string | null,
+  uniqueId: string | null,
   safariCount: number,
 ) => {
+  console.log("Safari count: ", safariCount);
+  console.log("Profile info: ", driverId, profileName, uniqueId, safariCount);
+
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_TRACCAR_API_URL}/api/drivers/${Number(driverId)}`,
+      `${import.meta.env.VITE_TRACCAR_API_URL}/drivers/${driverId}`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
-          Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
+          Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
+          // Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
         },
         body: JSON.stringify({
           id: driverId,
-          name: "Janski-69",
-          uniqueId: "janski-69",
+          name: profileName,
+          uniqueId: uniqueId,
           attributes: { Safarit: safariCount },
         }),
       },
@@ -39,16 +44,23 @@ const updateDriverSafariCount = async (
 };
 
 const EndSafari = () => {
-  console.log("Safari ended");
   const driverId = useProfileStore((state) => state.selectedProfileId);
+  const uniqueId = useProfileStore((state) => state.uniqueId);
   const safariCount = useProfileStore((state) => state.safariCount);
+  const profileName = useProfileStore((state) => state.profileName);
   const clearVehicles = useVehicleStore((state) => state.clearSelection);
   const clearProfile = useProfileStore((state) => state.clearSelection);
   const navigate = useNavigate();
   const handleClick = () => {
     if (confirm("Are you sure you want to end the safari?")) {
+      console.log("Safari ended");
       if (driverId !== null) {
-        updateDriverSafariCount(driverId, safariCount);
+        updateDriverSafariCount(
+          driverId,
+          profileName,
+          uniqueId,
+          safariCount + 1,
+        );
       }
       clearVehicles();
       clearProfile();

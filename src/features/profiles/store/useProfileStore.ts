@@ -16,7 +16,7 @@ type ProfileSelectionState = {
 
 const useProfileStore = create<ProfileSelectionState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       selectedProfileId: null,
       setSelectedProfile: (profileId: ProfileId | null) => {
         set(() => ({ selectedProfileId: profileId }));

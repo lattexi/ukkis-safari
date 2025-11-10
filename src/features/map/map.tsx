@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl, { Map as MMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
@@ -32,6 +32,7 @@ const LiveMap = () => {
 
   const markersRef = useRef<Map<number, Marker>>(new Map());
   const lastPosRef = useRef<Map<number, TraccarPosition>>(new Map());
+  const selectedIdsRef = useRef<Set<number>>(new Set());
 
   // Valitut ajoneuvot Zustandista
   const selectedVehicleIds = useVehicleStore(
@@ -39,12 +40,10 @@ const LiveMap = () => {
     shallow, // ✅ equalityFn
   );
   // 2) Tee Set vain kun taulukko oikeasti muuttuu
-  const selectedIds = useMemo(
-    () => new Set<number>(selectedVehicleIds.map(Number)),
-    [selectedVehicleIds],
-  );
-  console.log("Selected IDs on map:", selectedIds);
-  const isSelected = (deviceId: number) => selectedIds.has(deviceId);
+  useEffect(() => {
+    selectedIdsRef.current = new Set<number>(selectedVehicleIds.map(Number));
+    console.log("Selected IDs on map:", selectedIdsRef.current);
+  }, [selectedVehicleIds]);
 
   useEffect(() => {
     // 1) Luo kartta
@@ -55,6 +54,15 @@ const LiveMap = () => {
       zoom: 11,
     });
     mapRef.current = map;
+
+    // const geolocate = new maplibregl.GeolocateControl({
+    //   positionOptions: { enableHighAccuracy: true },
+    //   trackUserLocation: true, // seuraa liikkuen
+    // });
+    // map.addControl(geolocate, "top-right");
+
+    // // (valinnaisesti) keskitys heti kun sijainti löytyy:
+    // geolocate.once("geolocate", () => geolocate.trigger());
 
     // 2) Yhdistä Traccariin WebSocketilla
     const api = import.meta.env.VITE_TRACCAR_API_URL as string;
@@ -91,7 +99,7 @@ const LiveMap = () => {
       lastPosRef.current.set(p.deviceId, p);
 
       // Jos laite EI ole valittuna -> poista/piilota marker ja poistu
-      if (!isSelected(p.deviceId)) {
+      if (!selectedIdsRef.current.has(p.deviceId)) {
         const existing = markersRef.current.get(p.deviceId);
         if (existing) {
           existing.remove();
@@ -108,7 +116,7 @@ const LiveMap = () => {
           .setLngLat(lngLat)
           .setPopup(
             new maplibregl.Popup({ closeButton: false }).setHTML(
-              `<div style="font-size:12px;">
+              `<div style="font-size:12px; color: black; ">
              <strong>Device ${p.deviceId}</strong><br/>
              ${p.fixTime ? new Date(p.fixTime).toLocaleString() : ""}
            </div>`,
@@ -144,7 +152,7 @@ const LiveMap = () => {
       let has = false;
 
       for (const [id, pos] of lastPosRef.current) {
-        if (isSelected(id)) {
+        if (selectedIdsRef.current.has(id)) {
           bounds.extend([pos.longitude, pos.latitude]);
           has = true;
         }
@@ -157,29 +165,6 @@ const LiveMap = () => {
         });
       }
     };
-
-    // (async () => {
-    //   try {
-    //     const res = await fetch("https://traccar.latexi.dev/api/positions", {
-    //       headers: {
-    //         Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_TOKEN}`,
-    //       },
-    //     });
-    //     if (!res.ok) {
-    //       console.error(
-    //         "Initial positions fetch failed",
-    //         res.status,
-    //         await res.text(),
-    //       );
-    //       return;
-    //     }
-    //     const positions: TraccarPosition[] = await res.json();
-    //     positions.forEach(upsertMarker); // käyttää jo olemassa olevaa funktiotasi
-    //     fitToSelected();
-    //   } catch (e) {
-    //     console.error("Initial positions fetch error", e);
-    //   }
-    // })();
 
     ws.onmessage = (msg) => {
       try {

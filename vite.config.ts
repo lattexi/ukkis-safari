@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+// import fs from "fs";
 
 // HUOM: jos Traccarin TLS-ketjussa on ongelmia (testaus), voit vaihtaa secure: false hetkeksi.
 // Älä jätä productioniin "false".
@@ -19,6 +20,13 @@ export default defineConfig({
       "@utils": path.resolve(__dirname, "src/shared/utils"),
       "@types": path.resolve(__dirname, "src/shared/types"),
     },
+  },
+  server: {
+    host: true, // kuuntele LANissa
+    // https: {
+    //   key: fs.readFileSync("./certs/dev.key"),
+    //   cert: fs.readFileSync("./certs/dev.pem"),
+    // },
   },
 
   plugins: [
@@ -45,41 +53,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          // API GET
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly",
-            method: "GET",
-          },
-          // API POST/PUT/DELETE tms.
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly",
-            method: "POST",
-          },
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly",
-            method: "PUT",
-          },
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly",
-            method: "DELETE",
-          },
-          // WS-reitti (varotoimi — Workbox ei oikeasti käsittele WS:ää, mutta estetään mahdolliset HTTP-hitit)
-          {
-            urlPattern: ({ url }) => url.pathname === "/socket",
-            handler: "NetworkOnly",
-          },
-          // Jos joskus kutsut suoraan Traccarin domainiin (ilman proxya), estä senkin cache:
-          {
-            urlPattern: /^https:\/\/traccar\.latexi\.dev\/api\/.*/i,
-            handler: "NetworkOnly",
-          },
-        ],
       },
 
       devOptions: {

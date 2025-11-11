@@ -41,6 +41,9 @@ const LoginPage = () => {
       <Link to="/profile" className="absolute top-4 left-4">
         Profiles
       </Link>
+      <Link to="/settings" className="absolute top-4 left-20">
+        Settings
+      </Link>
       <Link
         to="/setup"
         className="mt-40 text-3xl text-icy-mint underline animate-bounce"

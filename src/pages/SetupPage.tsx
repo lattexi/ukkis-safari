@@ -3,8 +3,7 @@ import Header from "@/shared/components/Header";
 import Searchbar from "@/shared/components/Searchbar";
 import VehicleSummary from "@/features/vehicles/components/VehicleSummary";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { cn } from "@/shared/utils/cn";
+import { useNavigate } from "react-router";
 
 const SetupPage = () => {
   const [isLoading, setIsLoading] = useState(false);

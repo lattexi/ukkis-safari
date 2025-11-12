@@ -63,4 +63,15 @@ export default defineConfig({
       },
     }),
   ],
+  // server: {
+  //   proxy: {
+  //     "/api": {
+  //       target: "https://traccar.latexi.dev/api",
+  //       changeOrigin: true,
+  //       secure: true,
+  //       // If you need to rewrite the path, uncomment the line below
+  //       // rewrite: (path) => path.replace(/^\/api/, ""),
+  //     },
+  //   },
+  // },
 });

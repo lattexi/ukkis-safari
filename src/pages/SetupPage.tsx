@@ -20,7 +20,7 @@ const SetupPage = () => {
 
   return (
     <div className="w-full h-screen bg-icy-mint relative">
-      <Header title="Valitse safarin ajoneuvot" />
+      <Header title="Valitse safarin ajoneuvot" backButton />
       {/* Container for vehicle selection */}
       <div className="p-4 space-y-4">
         <Searchbar placeholder="Hae ajoneuvoa..." />

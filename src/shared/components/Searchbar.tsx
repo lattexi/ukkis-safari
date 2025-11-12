@@ -1,12 +1,14 @@
+import { cn } from "@/shared/utils/cn";
 import { Search } from "lucide-react";
 
 type SearchbarProps = {
   placeholder: string;
+  className?: string;
 };
 
-const Searchbar = ({ placeholder }: SearchbarProps) => {
+const Searchbar = ({ placeholder, className }: SearchbarProps) => {
   return (
-    <div className="flex-1 relative">
+    <div className={cn("relative flex-1", className)}>
       <div className="absolute inset-y-0 left-3 flex items-center">
         <Search className="text-deep-violet-navy" size={20} />
       </div>

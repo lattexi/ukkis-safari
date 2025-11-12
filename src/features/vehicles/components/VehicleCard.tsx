@@ -13,8 +13,8 @@ const VehicleCard = ({ id, name, status }: Vehicle) => {
 
   const handleSelect = useCallback(() => {
     if (!["online", "unknown"].includes(status)) return;
-    toggleVehicle(id);
-  }, [id, status, toggleVehicle]);
+    toggleVehicle(id, name);
+  }, [id, name, status, toggleVehicle]);
 
   return (
     <div

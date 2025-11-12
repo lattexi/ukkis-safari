@@ -78,7 +78,7 @@ const EndSafari = () => {
       >
         <>
           <FaStop className="inline-block mr-2 ml-2" size={20} />
-          <p className="mr-4 text-white font-bold text-xl">End Safari</p>
+          <p className="mr-4 text-white font-bold text-xl">Lopeta Safari</p>
         </>
       </button>
     </div>

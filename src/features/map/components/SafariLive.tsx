@@ -11,9 +11,9 @@ const SafariLive = () => {
         <FaRoute className="text-icy-blue" />
       </div>
       <div className="flex flex-col mr-2">
-        <p className="text-dark-navy-purple font-bold">Safari Live</p>
+        <p className="text-dark-navy-purple font-bold">Safarin seuranta</p>
         <p className="text-deep-violet-navy text-sm">
-          {vehiclesTracking} vehicles tracking
+          {vehiclesTracking} ajoneuvoa seurannassa
         </p>
       </div>
     </div>

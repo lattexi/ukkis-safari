@@ -3,13 +3,18 @@ import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
 
 type VehicleId = string;
+type VehicleName = string;
 
 type VehicleSelectionState = {
   selectedVehicleIds: VehicleId[];
+  selectedVehicleNames?: VehicleName[];
 
   // actions
-  setSelectedVehicles: (vehicleIds: VehicleId[]) => void;
-  toggleVehicle: (vehicleId: VehicleId) => void;
+  setSelectedVehicles: (
+    vehicleIds: VehicleId[],
+    vehicleNames: VehicleName[],
+  ) => void;
+  toggleVehicle: (vehicleId: VehicleId, vehicleName: VehicleName) => void;
   clearSelection: () => void;
 
   // Siivotaan traccarista poistuneet ajoneuvot pois valinnoista
@@ -20,20 +25,33 @@ const useVehicleStore = createWithEqualityFn<VehicleSelectionState>()(
   persist(
     (set, get) => ({
       selectedVehicleIds: [],
-      setSelectedVehicles: (vehicleIds: VehicleId[]) => {
-        set(() => ({ selectedVehicleIds: vehicleIds }));
+      selectedVehicleNames: [],
+      setSelectedVehicles: (
+        vehicleIds: VehicleId[],
+        vehicleNames: VehicleName[],
+      ) => {
+        set(() => ({
+          selectedVehicleIds: vehicleIds,
+          selectedVehicleNames: vehicleNames,
+        }));
       },
-      toggleVehicle: (vehicleId: VehicleId) => {
+      toggleVehicle: (vehicleId: VehicleId, vehicleName: VehicleName) => {
         set((state) => {
           const isSelected = state.selectedVehicleIds.includes(vehicleId);
           const selectedVehicleIds = isSelected
             ? state.selectedVehicleIds.filter((v) => v !== vehicleId)
             : [...state.selectedVehicleIds, vehicleId];
-          return { selectedVehicleIds };
+          const selectedVehicleNames = isSelected
+            ? state.selectedVehicleNames?.filter((n) => n !== vehicleName)
+            : [...(state.selectedVehicleNames || []), vehicleName];
+          return {
+            selectedVehicleIds,
+            selectedVehicleNames,
+          };
         });
       },
       clearSelection: () => {
-        set(() => ({ selectedVehicleIds: [] }));
+        set(() => ({ selectedVehicleIds: [], selectedVehicleNames: [] }));
       },
       pruneAgainst: (existingIds: VehicleId[]) => {
         const vehicleIds = new Set(existingIds);
@@ -45,7 +63,10 @@ const useVehicleStore = createWithEqualityFn<VehicleSelectionState>()(
     }),
     {
       name: "vehicle-storage", // name of the item in the storage (must be unique)
-      partialize: (state) => ({ selectedVehicleIds: state.selectedVehicleIds }), // only persist selectedVehicleIds
+      partialize: (state) => ({
+        selectedVehicleIds: state.selectedVehicleIds,
+        selectedVehicleNames: state.selectedVehicleNames,
+      }), // only persist selectedVehicleIds
     },
   ),
   shallow,

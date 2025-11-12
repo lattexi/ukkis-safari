@@ -3,6 +3,10 @@ import maplibregl, { Map as MMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
 import { shallow } from "zustand/shallow";
+import {
+  createMarkerElement,
+  createUserMarkerElement,
+} from "@/features/map/components/Markers";
 
 type TraccarDevice = {
   id: number;
@@ -34,6 +38,11 @@ const LiveMap = () => {
   const lastPosRef = useRef<Map<number, TraccarPosition>>(new Map());
   const selectedIdsRef = useRef<Set<number>>(new Set());
 
+  const userMarkerRef = useRef<Marker | null>(null);
+  const userPosRef = useRef<GeolocationPosition | null>(null);
+  const userHeadingRef = useRef<number | null>(null);
+  const headingSourceRef = useRef<"geo" | "compass" | null>(null);
+
   // Valitut ajoneuvot Zustandista
   const selectedVehicleIds = useVehicleStore(
     (s) => s.selectedVehicleIds,
@@ -55,14 +64,97 @@ const LiveMap = () => {
     });
     mapRef.current = map;
 
-    // const geolocate = new maplibregl.GeolocateControl({
-    //   positionOptions: { enableHighAccuracy: true },
-    //   trackUserLocation: true, // seuraa liikkuen
-    // });
-    // map.addControl(geolocate, "top-right");
+    let firstUserFix = true;
+    let watchId: number | null = null;
+    const cleanupFns: Array<() => void> = [];
 
-    // // (valinnaisesti) keskitys heti kun sijainti löytyy:
-    // geolocate.once("geolocate", () => geolocate.trigger());
+    // 5a) GPS watch: sijainti + mahdollinen heading liikkeessä
+    if ("geolocation" in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          userPosRef.current = pos;
+          const { latitude, longitude, heading } = pos.coords;
+
+          // Päivitä oma markkeri
+          updateUserMarker(longitude, latitude);
+
+          // Käytä GPS-headingiä jos saatavilla (yleensä vain liikkeessä)
+          if (typeof heading === "number" && isFinite(heading)) {
+            userHeadingRef.current = heading;
+            headingSourceRef.current = "geo";
+            setMapBearing(heading);
+          }
+
+          if (firstUserFix) {
+            firstUserFix = false;
+            fitToSelected();
+          }
+        },
+        (err) => {
+          console.warn("Geolocation error:", err);
+        },
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
+      );
+    }
+
+    const enableCompass = () => {
+      const handle = (ev: DeviceOrientationEvent) => {
+        const iosHeading = (ev as any).webkitCompassHeading as
+          | number
+          | undefined;
+        const alpha = ev.alpha as number | null;
+
+        let heading: number | null = null;
+        if (typeof iosHeading === "number") {
+          heading = iosHeading; // iOS: 0 = pohjoinen, myötäpäivään
+        } else if (typeof alpha === "number") {
+          heading = 360 - alpha; // Android/Chrome: muunnos
+        }
+
+        if (heading == null || !isFinite(heading)) return;
+
+        if (headingSourceRef.current !== "geo") {
+          userHeadingRef.current = heading;
+          headingSourceRef.current = "compass";
+          setMapBearing(heading);
+        }
+      };
+
+      window.addEventListener("deviceorientation", handle, true);
+      cleanupFns.push(() =>
+        window.removeEventListener("deviceorientation", handle, true),
+      );
+    };
+
+    const tryStartCompass = () => {
+      const D: any = (window as any).DeviceOrientationEvent;
+
+      // iOS: requestPermission on pakollinen ja se täytyy tehdä käyttäjän eleestä
+      if (D && typeof D.requestPermission === "function") {
+        const el = containerRef.current!;
+        const ask = async () => {
+          try {
+            const res = await D.requestPermission();
+            if (res === "granted") enableCompass();
+          } catch {
+            // ignore
+          }
+        };
+        const onFirstGesture = () => {
+          ask();
+          el.removeEventListener("click", onFirstGesture);
+          el.removeEventListener("touchstart", onFirstGesture);
+        };
+        el.addEventListener("click", onFirstGesture, { once: true });
+        el.addEventListener("touchstart", onFirstGesture, { once: true });
+        // Ei näy nappeja; kompassi aktivoituu heti kun käyttäjä koskettaa karttaa.
+      } else {
+        // Android/Chrome/desktop: suoraan päälle
+        enableCompass();
+      }
+    };
+
+    tryStartCompass();
 
     // 2) Yhdistä Traccariin WebSocketilla
     const api = import.meta.env.VITE_TRACCAR_API_URL as string;
@@ -108,11 +200,12 @@ const LiveMap = () => {
         return;
       }
 
-      // Muuten: piirrä/päivitä marker
+      const marker = createMarkerElement(p.deviceId);
+
       const lngLat: [number, number] = [p.longitude, p.latitude];
       let m = markersRef.current.get(p.deviceId);
       if (!m) {
-        m = new maplibregl.Marker({ draggable: false })
+        m = new maplibregl.Marker({ element: marker, draggable: false })
           .setLngLat(lngLat)
           .setPopup(
             new maplibregl.Popup({ closeButton: false }).setHTML(
@@ -126,6 +219,35 @@ const LiveMap = () => {
         markersRef.current.set(p.deviceId, m);
       } else {
         m.setLngLat(lngLat);
+      }
+    };
+    const setMapBearing = (deg: number) => {
+      if (!mapRef.current) return;
+      mapRef.current.easeTo({ bearing: deg, duration: 150 });
+    };
+
+    const updateUserMarker = (lng: number, lat: number) => {
+      if (!mapRef.current) return;
+
+      let m = userMarkerRef.current;
+      if (!m) {
+        m = new maplibregl.Marker({
+          element: createUserMarkerElement("#0ea5e9"), // oma väri tänne
+          draggable: false,
+          rotationAlignment: "map",
+        })
+          .setLngLat([lng, lat])
+          .setPopup(
+            new maplibregl.Popup({ closeButton: false }).setHTML(
+              `<div style="font-size:12px; color: black;">
+             <strong>Oma sijainti</strong>
+           </div>`,
+            ),
+          )
+          .addTo(mapRef.current);
+        userMarkerRef.current = m;
+      } else {
+        m.setLngLat([lng, lat]);
       }
     };
 
@@ -146,20 +268,49 @@ const LiveMap = () => {
     //   });
     // };
 
+    // const fitToSelected = () => {
+    //   if (!mapRef.current) return;
+    //   const bounds = new maplibregl.LngLatBounds();
+    //   let has = false;
+
+    //   for (const [id, pos] of lastPosRef.current) {
+    //     if (selectedIdsRef.current.has(id)) {
+    //       bounds.extend([pos.longitude, pos.latitude]);
+    //       has = true;
+    //     }
+    //   }
+    //   if (has) {
+    //     mapRef.current.fitBounds(bounds, {
+    //       padding: 140,
+    //       maxZoom: 16,
+    //       duration: 600,
+    //     });
+    //   }
+    // };
+
     const fitToSelected = () => {
       if (!mapRef.current) return;
       const bounds = new maplibregl.LngLatBounds();
       let has = false;
 
+      // 1) valitut ajoneuvot
       for (const [id, pos] of lastPosRef.current) {
         if (selectedIdsRef.current.has(id)) {
           bounds.extend([pos.longitude, pos.latitude]);
           has = true;
         }
       }
+
+      // 2) oma sijainti
+      const up = userPosRef.current;
+      if (up) {
+        bounds.extend([up.coords.longitude, up.coords.latitude]);
+        has = true;
+      }
+
       if (has) {
         mapRef.current.fitBounds(bounds, {
-          padding: 60,
+          padding: 140,
           maxZoom: 16,
           duration: 600,
         });
@@ -200,6 +351,8 @@ const LiveMap = () => {
       markersRef.current.forEach((m) => m.remove());
       markersRef.current.clear();
       lastPosRef.current.clear();
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      cleanupFns.forEach((fn) => fn());
     };
   }, []);
 

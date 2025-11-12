@@ -1,4 +1,3 @@
-import LoginPage from "@/pages/LoginPage";
 import MapPage from "@/pages/MapPage";
 import SetupPage from "@/pages/SetupPage";
 import PWABadge from "@/app/pwa/PWABadge";
@@ -11,7 +10,7 @@ export default function AppShell() {
   return (
     <>
       <Routes>
-        <Route index element={<LoginPage />} />
+        <Route index element={<ProfilePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="map" element={<MapPage />} />
         <Route path="setup" element={<SetupPage />} />

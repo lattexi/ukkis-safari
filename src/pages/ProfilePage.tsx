@@ -20,7 +20,8 @@ const ProfilePage = () => {
 
   return (
     <div className="w-full h-screen bg-icy-mint">
-      <Header title="Valitse safarin vetäjä" />
+      <Header title="Valitse safarin vetäjä" settingsButton />
+
       <div className="p-4 space-y-4 flex flex-col gap-6 px-20">
         <Searchbar
           placeholder="Hae käyttäjää..."

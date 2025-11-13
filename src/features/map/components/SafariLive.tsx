@@ -13,7 +13,7 @@ const SafariLive = () => {
       <div className="flex flex-col mr-2">
         <p className="text-dark-navy-purple font-bold">Safarin seuranta</p>
         <p className="text-deep-violet-navy text-sm">
-          {vehiclesTracking} ajoneuvoa seurannassa
+          {vehiclesTracking} ajoneuvo(a) seurannassa
         </p>
       </div>
     </div>

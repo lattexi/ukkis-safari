@@ -29,6 +29,16 @@ export default defineConfig({
     // },
   },
 
+  build: {
+    // älä downlevlaa liikaa, ettei __publicField-helperiä tarvita erikseen
+    target: "es2022",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "es2022",
+    },
+  },
+
   plugins: [
     react(),
     tailwindcss(),

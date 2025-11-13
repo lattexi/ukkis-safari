@@ -1,6 +1,6 @@
 import MapPage from "@/pages/MapPage";
 import SetupPage from "@/pages/SetupPage";
-import PWABadge from "@/app/pwa/PWABadge";
+// import PWABadge from "@/app/pwa/PWABadge";
 import { Navigate, Route, Routes } from "react-router";
 import ErrorPage from "@/pages/ErrorPage";
 import ProfilePage from "@/pages/ProfilePage";
@@ -18,7 +18,7 @@ export default function AppShell() {
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <PWABadge />
+      {/* <PWABadge /> */}
     </>
   );
 }

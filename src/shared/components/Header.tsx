@@ -13,7 +13,7 @@ const Header = ({ title, backButton, settingsButton }: HeaderProps) => {
     <header className="bg-white/80 shadow-sm border-b border-gray-200 relative z-50">
       <div className="px-4 py-4 ">
         {backButton && (
-          <Link to="/previous-page" className="absolute left-4 top-3">
+          <Link to="/~miikavs/ukkis/profile" className="absolute left-4 top-3">
             <button
               className={cn(
                 "ml-auto bg-warning-badge text-white p-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-hover-warning-badge transition-all",
@@ -24,7 +24,10 @@ const Header = ({ title, backButton, settingsButton }: HeaderProps) => {
           </Link>
         )}
         {settingsButton && (
-          <Link to="/settings" className="absolute right-4 top-3">
+          <Link
+            to="/~miikavs/ukkis/settings"
+            className="absolute right-4 top-3"
+          >
             <button
               className={cn(
                 "ml-auto bg-dark-navy-purple text-white p-2 rounded-xl flex items-center cursor-pointer",

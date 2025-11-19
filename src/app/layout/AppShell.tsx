@@ -10,13 +10,13 @@ export default function AppShell() {
   return (
     <>
       <Routes>
-        <Route index element={<ProfilePage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="map" element={<MapPage />} />
-        <Route path="setup" element={<SetupPage />} />
-        <Route path="error" element={<ErrorPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* <Route index element={<ProfilePage />} /> */}
+        <Route index path="/~miikavs/ukkis/profile" element={<ProfilePage />} />
+        <Route path="/~miikavs/ukkis/map" element={<MapPage />} />
+        <Route path="/~miikavs/ukkis/setup" element={<SetupPage />} />
+        <Route path="/~miikavs/ukkis/error" element={<ErrorPage />} />
+        <Route path="/~miikavs/ukkis/settings" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/~miikavs/ukkis/profile" />} />
       </Routes>
       {/* <PWABadge /> */}
     </>

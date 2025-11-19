@@ -28,7 +28,7 @@ export default defineConfig({
     //   cert: fs.readFileSync("./certs/dev.pem"),
     // },
   },
-
+  base: "/~miikavs/ukkis/",
   build: {
     // älä downlevlaa liikaa, ettei __publicField-helperiä tarvita erikseen
     target: "es2022",
@@ -57,6 +57,28 @@ export default defineConfig({
         short_name: "ukkis-safari",
         description: "Safari tool",
         theme_color: "#d7eae0",
+        icons: [
+          {
+            src: "icons/ukkohalla-safaris-logo-no-bg-192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "icons/ukkohalla-safaris-logo-no-bg-256.png",
+            sizes: "256x256",
+            type: "image/png",
+          },
+          {
+            src: "icons/ukkohalla-safaris-logo-no-bg-384.png",
+            sizes: "384x384",
+            type: "image/png",
+          },
+          {
+            src: "icons/ukkohalla-safaris-logo-no-bg-512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
       },
 
       // 🔒 Tärkeää: Älä cacheta /api eikä /socket → muuten jää vanha auth/env välimuistiin.

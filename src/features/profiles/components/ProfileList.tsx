@@ -26,6 +26,43 @@ const ProfileList = () => {
 
         const data = await response.json();
         console.log(data);
+
+        // #### Testing updating driver attributes as JSON ####
+
+        // const jsonData = data[1].attributes.Asetukset;
+        // const parsedData = JSON.parse(jsonData);
+        // console.log("jsonData type: ", typeof jsonData);
+        // console.log("jsonData: ", jsonData);
+        // console.log("parsedData type: ", typeof parsedData.Ajoneuvot);
+        // console.log("parsedData: ", parsedData.Ajoneuvot);
+
+        // // console.log("parsedData before push: ", parsedData);
+        // parsedData.Ajoneuvot.push(8);
+
+        // // console.log("parsedData after push: ", parsedData);
+
+        // const jsonTestRes = await fetch(
+        //   `${import.meta.env.VITE_TRACCAR_API_URL}/drivers/${data[1].id}`,
+        //   {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //       Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
+        //       // Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
+        //     },
+        //     body: JSON.stringify({
+        //       id: data[1].id,
+        //       name: data[1].name,
+        //       uniqueId: data[1].uniqueId,
+        //       attributes: {
+        //         Safarit: data[1].attributes.Safarit,
+        //         Asetukset: JSON.stringify(parsedData),
+        //       },
+        //     }),
+        //   },
+        // );
+        // const updatedData = await jsonTestRes.json();
+        // console.log("Updated driver data:", updatedData);
         setProfiles(data);
       } catch (error) {
         console.error(error);

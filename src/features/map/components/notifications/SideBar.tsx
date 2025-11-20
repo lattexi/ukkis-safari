@@ -1,3 +1,4 @@
+import AlertCard from "@/features/map/components/notifications/AlertCard";
 import useNotificationStore from "@/features/map/store/useNotificationStore";
 import { cn } from "@/shared/utils/cn";
 import { useEffect } from "react";
@@ -30,6 +31,24 @@ const SideBar = () => {
           >
             <IoClose className="text-dark-navy-purple text-3xl" />
           </button>
+        </div>
+        <div className="mt-4 overflow-y-auto h-[calc(100%-80px)]">
+          {/* Notification content goes here */}
+          <AlertCard
+            alertType="error"
+            message="This is an error alert"
+            timestamp="2024-06-01T12:00:00Z"
+          />
+          <AlertCard
+            alertType="warning"
+            message="This is a warning alert"
+            timestamp="2024-06-01T12:00:00Z"
+          />
+          <AlertCard
+            alertType="info"
+            message="This is an info alert"
+            timestamp="2024-06-01T12:00:00Z"
+          />
         </div>
       </div>
     </div>

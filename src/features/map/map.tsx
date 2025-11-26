@@ -147,7 +147,8 @@ const LiveMap = () => {
           // Käytä GPS-headingiä jos saatavilla (yleensä vain liikkeessä)
           if (typeof heading === "number" && isFinite(heading)) {
             userHeadingRef.current = heading;
-            headingSourceRef.current = "geo";
+            // vaihda geo
+            headingSourceRef.current = "compass";
             setMapBearing(heading);
           }
 
@@ -172,8 +173,10 @@ const LiveMap = () => {
 
         let heading: number | null = null;
         if (typeof iosHeading === "number") {
+          console.log("iOS compass heading:", iosHeading);
           heading = iosHeading; // iOS: 0 = pohjoinen, myötäpäivään
         } else if (typeof alpha === "number") {
+          console.log("Android compass alpha:", alpha);
           heading = 360 - alpha; // Android/Chrome: muunnos
         }
 
@@ -194,29 +197,43 @@ const LiveMap = () => {
 
     const tryStartCompass = () => {
       const D: any = (window as any).DeviceOrientationEvent;
+      console.log("DeviceOrientationEvent:", D);
+      console.log(
+        "has requestPermission:",
+        D && typeof D.requestPermission === "function",
+      );
 
-      // iOS: requestPermission on pakollinen ja se täytyy tehdä käyttäjän eleestä
       if (D && typeof D.requestPermission === "function") {
         const el = containerRef.current!;
-        const ask = async () => {
-          try {
-            const res = await D.requestPermission();
-            if (res === "granted") enableCompass();
-          } catch {
-            // ignore
-          }
-        };
+        if (!el) return;
+
         const onFirstGesture = () => {
-          ask();
+          D.requestPermission()
+            .then((res: string) => {
+              console.log("DeviceOrientation permission result:", res);
+              if (res === "granted") {
+                enableCompass();
+              } else {
+                console.warn(
+                  "DeviceOrientation permission denied, result:",
+                  res,
+                );
+              }
+            })
+            .catch((e: unknown) => {
+              console.error("DeviceOrientation permission request failed:", e);
+            });
+
           el.removeEventListener("click", onFirstGesture);
-          el.removeEventListener("touchstart", onFirstGesture);
+          el.removeEventListener("touchend", onFirstGesture);
         };
+
         el.addEventListener("click", onFirstGesture, { once: true });
-        el.addEventListener("touchstart", onFirstGesture, { once: true });
-        // Ei näy nappeja; kompassi aktivoituu heti kun käyttäjä koskettaa karttaa.
+        el.addEventListener("touchend", onFirstGesture, { once: true });
       } else {
-        // Android/Chrome/desktop: suoraan päälle
+        // Android/desktop
         enableCompass();
+        console.log("Compass enabled without permission request");
       }
     };
 

@@ -6,16 +6,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 
 const SetupPage = () => {
+  const path = import.meta.env.VITE_PATH;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleStart = () => {
     setIsLoading(true);
     // Simulate a loading process
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate("/~miikavs/ukkis/map");
-    }, 2000);
+    setIsLoading(false);
+    navigate(`${path}/map`);
   };
 
   return (

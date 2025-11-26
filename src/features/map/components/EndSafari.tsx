@@ -44,6 +44,7 @@ const updateDriverSafariCount = async (
 };
 
 const EndSafari = () => {
+  const path = import.meta.env.VITE_PATH;
   const driverId = useProfileStore((state) => state.selectedProfileId);
   const uniqueId = useProfileStore((state) => state.uniqueId);
   const safariCount = useProfileStore((state) => state.safariCount);
@@ -64,7 +65,7 @@ const EndSafari = () => {
       }
       clearVehicles();
       clearProfile();
-      navigate("/~miikavs/ukkis/profile");
+      navigate(`${path}/profile`);
     }
   };
 

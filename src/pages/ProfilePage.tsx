@@ -10,12 +10,12 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const handleStart = () => {
+    const path = import.meta.env.VITE_PATH;
     setIsLoading(true);
     // Simulate a loading process
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate("/~miikavs/ukkis/setup");
-    }, 2000);
+
+    setIsLoading(false);
+    navigate(`${path}/setup`);
   };
 
   return (

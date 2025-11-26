@@ -7,16 +7,17 @@ import ProfilePage from "@/pages/ProfilePage";
 import SettingsPage from "@/pages/SettingsPage";
 
 export default function AppShell() {
+  const path = import.meta.env.VITE_PATH;
   return (
     <>
       <Routes>
         {/* <Route index element={<ProfilePage />} /> */}
-        <Route index path="/~miikavs/ukkis/profile" element={<ProfilePage />} />
-        <Route path="/~miikavs/ukkis/map" element={<MapPage />} />
-        <Route path="/~miikavs/ukkis/setup" element={<SetupPage />} />
-        <Route path="/~miikavs/ukkis/error" element={<ErrorPage />} />
-        <Route path="/~miikavs/ukkis/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/~miikavs/ukkis/profile" />} />
+        <Route index path={`${path}/profile`} element={<ProfilePage />} />
+        <Route path={`${path}/map`} element={<MapPage />} />
+        <Route path={`${path}/setup`} element={<SetupPage />} />
+        <Route path={`${path}/error`} element={<ErrorPage />} />
+        <Route path={`${path}/settings`} element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to={`${path}/profile`} />} />
       </Routes>
       {/* <PWABadge /> */}
     </>

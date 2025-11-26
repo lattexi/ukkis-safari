@@ -1,5 +1,6 @@
 import EndSafari from "@/features/map/components/EndSafari";
 import MapControls from "@/features/map/components/MapControls";
+import Popup from "@/features/map/components/notifications/Popup";
 import SideBar from "@/features/map/components/notifications/SideBar";
 import SafariLive from "@/features/map/components/SafariLive";
 import VehicleStatus from "@/features/map/components/VehicleStatus";
@@ -14,6 +15,7 @@ const MapPage = () => {
       <MapControls />
       <VehicleStatus />
       <SideBar />
+      <Popup />
     </div>
   );
 };

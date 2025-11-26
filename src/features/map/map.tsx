@@ -7,6 +7,7 @@ import {
   createMarkerElement,
   createUserMarkerElement,
 } from "@/features/map/components/Markers";
+import useMapStore from "./store/useMapStore";
 
 type TraccarDevice = {
   id: number;
@@ -203,6 +204,16 @@ const LiveMap = () => {
       const marker = createMarkerElement(p.deviceId);
 
       const lngLat: [number, number] = [p.longitude, p.latitude];
+
+      //Update to map store
+      const setVehiclesCoordinates =
+        useMapStore.getState().setVehiclesCoordinates;
+      setVehiclesCoordinates({
+        id: p.deviceId,
+        latitude: p.latitude,
+        longitude: p.longitude,
+      });
+
       let m = markersRef.current.get(p.deviceId);
       if (!m) {
         m = new maplibregl.Marker({ element: marker, draggable: false })
@@ -246,6 +257,11 @@ const LiveMap = () => {
           )
           .addTo(mapRef.current);
         userMarkerRef.current = m;
+
+        //Update user location to map store
+        const setUserCoordinates = useMapStore.getState().setUserCoordinates;
+        setUserCoordinates(lat, lng);
+        //
       } else {
         m.setLngLat([lng, lat]);
       }

@@ -6,21 +6,21 @@ import { IoCheckmark } from "react-icons/io5";
 type AlertCardProps = {
   alertType: "info" | "warning" | "error";
   message: string;
-  timestamp: string;
+  timestamp: Date | string;
 };
 
 const AlertCard = ({ alertType, message, timestamp }: AlertCardProps) => {
   return (
     <div
       className={cn("w-full p-4 rounded-2xl border mb-4 flex", {
-        "border-gray-300 bg-gray-100": alertType === "info",
+        "border-blue-500 bg-blue-200": alertType === "info",
         "border-warning-badge bg-warning-bg": alertType === "warning",
         "border-danger-badge bg-danger-bg": alertType === "error",
       })}
     >
       <div
         className={cn("mr-4 h-10 w-10 flex items-center justify-center", {
-          "bg-green-400 p-2 rounded-full": alertType === "info",
+          "bg-blue-500 p-2 rounded-full": alertType === "info",
           "bg-warning-badge p-2 rounded-full": alertType === "warning",
           "bg-danger-badge p-2 rounded-full": alertType === "error",
         })}
@@ -60,7 +60,7 @@ const AlertCard = ({ alertType, message, timestamp }: AlertCardProps) => {
             "text-danger-badge": alertType === "error",
           })}
         >
-          {new Date(timestamp).toLocaleString()}
+          {new Date(timestamp).toLocaleString("fi-FI")}
         </span>
       </div>
     </div>

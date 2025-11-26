@@ -3,8 +3,10 @@ import MapControls from "@/features/map/components/MapControls";
 import Popup from "@/features/map/components/notifications/Popup";
 import SideBar from "@/features/map/components/notifications/SideBar";
 import SafariLive from "@/features/map/components/SafariLive";
+import SafariTimer from "@/features/map/components/SafariTimer";
 import VehicleStatus from "@/features/map/components/VehicleStatus";
 import MapComponent from "@/features/map/map";
+import SafariEndScreen from "@/features/map/components/SafariEndScreen";
 
 const MapPage = () => {
   return (
@@ -16,6 +18,8 @@ const MapPage = () => {
       <VehicleStatus />
       <SideBar />
       <Popup />
+      <SafariTimer />
+      <SafariEndScreen />
     </div>
   );
 };

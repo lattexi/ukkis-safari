@@ -6,6 +6,7 @@ export type PopupData = {
   title: string;
   message: string;
   type: PopupType;
+  timestamp?: Date | string;
 };
 
 type NotificationStore = {
@@ -31,6 +32,12 @@ const useNotificationStore = create<NotificationStore>((set) => ({
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setPopupOpen: (open) => set({ popupOpen: open }),
   showPopup: (data) => set({ popupData: data, popupOpen: true }),
+  // showPopup: (data) =>
+  //   set((state) => ({
+  //     notificationList: [...state.notificationList, data],
+  //     popupData: data,
+  //     popupOpen: true,
+  //   })),
   closePopup: () => set({ popupOpen: false }),
   addNotification: (data) =>
     set((state) => ({

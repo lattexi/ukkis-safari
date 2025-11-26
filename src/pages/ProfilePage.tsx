@@ -14,7 +14,7 @@ const ProfilePage = () => {
     // Simulate a loading process
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/setup");
+      navigate("/~miikavs/ukkis/setup");
     }, 2000);
   };
 

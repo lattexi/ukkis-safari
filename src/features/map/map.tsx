@@ -7,6 +7,7 @@ import {
   createMarkerElement,
   createUserMarkerElement,
 } from "@/features/map/components/Markers";
+import useSettingsStore from "@/features/settings/store/useSettingsStore";
 import useMapStore from "./store/useMapStore";
 
 type TraccarDevice = {
@@ -44,6 +45,9 @@ const LiveMap = () => {
   const userHeadingRef = useRef<number | null>(null);
   const headingSourceRef = useRef<"geo" | "compass" | null>(null);
 
+  const api = useSettingsStore((state) => state.apiUrl);
+  const token = useSettingsStore((state) => state.apiKey);
+
   // Valitut ajoneuvot Zustandista
   const selectedVehicleIds = useVehicleStore(
     (s) => s.selectedVehicleIds,
@@ -55,6 +59,65 @@ const LiveMap = () => {
     console.log("Selected IDs on map:", selectedIdsRef.current);
   }, [selectedVehicleIds]);
 
+  const setMapBearing = (deg: number) => {
+    if (!mapRef.current) return;
+    mapRef.current.easeTo({ bearing: deg, duration: 150 });
+  };
+
+  const updateUserMarker = (lng: number, lat: number) => {
+    if (!mapRef.current) return;
+
+    let m = userMarkerRef.current;
+    if (!m) {
+      m = new maplibregl.Marker({
+        element: createUserMarkerElement("#0ea5e9"), // oma väri tänne
+        draggable: false,
+        rotationAlignment: "map",
+      })
+        .setLngLat([lng, lat])
+        .setPopup(
+          new maplibregl.Popup({ closeButton: false }).setHTML(
+            `<div style="font-size:12px; color: black;">
+             <strong>Oma sijainti</strong>
+           </div>`,
+          ),
+        )
+        .addTo(mapRef.current);
+      userMarkerRef.current = m;
+    } else {
+      m.setLngLat([lng, lat]);
+    }
+  };
+
+  const fitToSelected = () => {
+    if (!mapRef.current) return;
+    const bounds = new maplibregl.LngLatBounds();
+    let has = false;
+
+    // 1) valitut ajoneuvot
+    for (const [id, pos] of lastPosRef.current) {
+      if (selectedIdsRef.current.has(id)) {
+        bounds.extend([pos.longitude, pos.latitude]);
+        has = true;
+      }
+    }
+
+    // 2) oma sijainti
+    const up = userPosRef.current;
+    if (up) {
+      bounds.extend([up.coords.longitude, up.coords.latitude]);
+      has = true;
+    }
+
+    if (has) {
+      mapRef.current.fitBounds(bounds, {
+        padding: 140,
+        maxZoom: 16,
+        duration: 600,
+      });
+    }
+  };
+
   useEffect(() => {
     // 1) Luo kartta
     const map = new maplibregl.Map({
@@ -64,6 +127,9 @@ const LiveMap = () => {
       zoom: 11,
     });
     mapRef.current = map;
+    map.on("error", (e) => {
+      console.error("MapLibre error event:", e.error);
+    });
 
     let firstUserFix = true;
     let watchId: number | null = null;
@@ -158,12 +224,11 @@ const LiveMap = () => {
     tryStartCompass();
 
     // 2) Yhdistä Traccariin WebSocketilla
-    const api = import.meta.env.VITE_TRACCAR_API_URL as string;
+
     const u = new URL(api);
     u.protocol = "wss:";
     u.pathname = `${u.pathname.replace(/\/$/, "")}/socket`;
 
-    const token = import.meta.env.VITE_TRACCAR_TOKEN;
     if (token) {
       u.searchParams.set("token", token);
     }

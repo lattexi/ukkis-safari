@@ -14,7 +14,7 @@ const SetupPage = () => {
     // Simulate a loading process
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/map");
+      navigate("/~miikavs/ukkis/map");
     }, 2000);
   };
 

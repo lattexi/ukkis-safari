@@ -64,7 +64,7 @@ const EndSafari = () => {
       }
       clearVehicles();
       clearProfile();
-      navigate("/profile");
+      navigate("/~miikavs/ukkis/profile");
     }
   };
 

@@ -8,6 +8,7 @@ type MapState = {
   vehiclesCoordinates?: { id: number; latitude: string; longitude: string }[];
   safariDuration: string;
   showSafariEndScreen: boolean;
+  showDistancesView: boolean;
 
   // actions
   setUserCoordinates: (latitude: string, longitude: string) => void;
@@ -18,6 +19,7 @@ type MapState = {
   }) => void;
   setSafariDuration: (duration: string) => void;
   toggleSafariEndScreen: () => void;
+  toggleDistancesView: () => void;
 };
 
 const useMapStore = create<MapState>()((set) => ({
@@ -25,6 +27,10 @@ const useMapStore = create<MapState>()((set) => ({
   vehiclesCoordinates: [],
   safariDuration: "00:00:00",
   showSafariEndScreen: false,
+  showDistancesView: false,
+
+  toggleDistancesView: () =>
+    set((state) => ({ showDistancesView: !state.showDistancesView })),
 
   setUserCoordinates: (latitude: string, longitude: string) =>
     set({ userCoordinates: { latitude, longitude } }),

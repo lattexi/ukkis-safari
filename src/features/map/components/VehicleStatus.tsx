@@ -15,10 +15,11 @@ const VehicleStatus = () => {
   const selectedVehicleIds = useVehicleStore((s) => s.selectedVehicleIds);
   const vehiclesCoordinates = useMapStore((s) => s.vehiclesCoordinates);
   const userCoordinates = useMapStore((s) => s.userCoordinates);
-
   const maxDistanceMeters = useSettingsStore((s) => s.alertRange);
   const { showPopup, addNotification } = useNotificationStore();
   const notificationList = useNotificationStore((s) => s.notificationList);
+
+  const toggleDistancesView = useMapStore((state) => state.toggleDistancesView);
 
   const calculateDistance = (
     vehicleCoord: { latitude: string; longitude: string },
@@ -147,7 +148,10 @@ const VehicleStatus = () => {
   }, [distances, maxDistanceMeters, showPopup, alerted]);
 
   return (
-    <div className="absolute bottom-6 min-w-52 left-5 flex flex-col p-4 bg-white/95 rounded-xl shadow-lg">
+    <div
+      className="absolute bottom-6 min-w-52 left-5 flex flex-col p-4 bg-white/95 rounded-xl shadow-lg"
+      onClick={toggleDistancesView}
+    >
       <div>
         <p className="font-bold text-dark-navy-purple">Ajoneuvojen tila</p>
       </div>

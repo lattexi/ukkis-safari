@@ -3,7 +3,7 @@ import useMapStore from "../store/useMapStore";
 import useVehicleStore from "@/features/vehicles/store/useVehicleStore";
 import { cn } from "@/shared/utils/cn";
 import { MdSnowmobile } from "react-icons/md";
-import { FaClock, FaStop } from "react-icons/fa6";
+import { FaClock, FaStop, FaUser } from "react-icons/fa6";
 import useProfileStore from "@/features/profiles/store/useProfileStore";
 import { useNavigate } from "react-router";
 import useNotificationStore from "@/features/map/store/useNotificationStore";
@@ -99,36 +99,45 @@ const SafariEndScreen = () => {
         <h1 className="text-4xl font-bold text-dark-navy-purple mb-4">
           Lopeta safari?
         </h1>
-        <div className="text-center text-dark-navy-purple text-lg flex flex-row gap-6">
-          <div className="flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
-            <div className="w-min p-4 bg-white rounded-2xl">
-              <FaClock className="text-icy-blue" size={30} />
+        <div className="w-4/5 flex flex-col items-center gap-2">
+          <div className="text-center text-dark-navy-purple justify-between w-full text-lg flex flex-row gap-6">
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+              <div className="w-min p-4 bg-white rounded-2xl">
+                <FaClock className="text-icy-blue" size={30} />
+              </div>
+              <p className="font-bold text-2xl">{safariDuration}</p>
+              <p className="text-sm">Safarin kesto</p>
             </div>
-            <p className="font-bold text-2xl">{safariDuration}</p>
-            <p className="text-sm">Safarin kesto</p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
-            <div className="w-min p-4 bg-white rounded-2xl">
-              <MdSnowmobile className="text-icy-blue" size={30} />
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+              <div className="w-min p-4 bg-white rounded-2xl">
+                <MdSnowmobile className="text-icy-blue" size={30} />
+              </div>
+              <p className="font-bold text-2xl">{vehiclesCount}</p>
+              <p className="text-sm">Ajoneuvojen määrä</p>
             </div>
-            <p className="font-bold text-2xl">{vehiclesCount}</p>
-            <p className="text-sm">Ajoneuvojen määrä</p>
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+              <div className="w-min p-4 bg-white rounded-2xl">
+                <FaUser className="text-icy-blue" size={30} />
+              </div>
+              <p className="font-bold text-2xl">{profileName}</p>
+              <p className="text-sm">Safarin vetäjä</p>
+            </div>
           </div>
-        </div>
-        <div className="flex justify-between gap-4 w-full p-6">
-          <button
-            onClick={toggleSafariEndScreen}
-            className="px-4 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
-          >
-            <p>Jatka safaria</p>
-          </button>
-          <button
-            onClick={handleClick}
-            className="px-4 py-4 bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:bg-red-600 transition cursor-pointer flex items-center gap-2 justify-center font-bold flex-1 text-xl shadow-lg"
-          >
-            <FaStop className="text-white" size={20} />
-            <p>Lopeta safari</p>
-          </button>
+          <div className="flex flex-row justify-between w-full py-4 gap-4">
+            <button
+              onClick={toggleSafariEndScreen}
+              className="px-4 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
+            >
+              <p>Jatka safaria</p>
+            </button>
+            <button
+              onClick={handleClick}
+              className="px-4 py-4 bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:bg-red-600 transition cursor-pointer flex items-center gap-2 justify-center font-bold flex-1 text-xl shadow-lg"
+            >
+              <FaStop className="text-white" size={20} />
+              <p>Lopeta safari</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>

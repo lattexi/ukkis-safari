@@ -7,6 +7,7 @@ import SafariTimer from "@/features/map/components/SafariTimer";
 import VehicleStatus from "@/features/map/components/VehicleStatus";
 import MapComponent from "@/features/map/map";
 import SafariEndScreen from "@/features/map/components/SafariEndScreen";
+import DistancesView from "@/features/map/components/DistancesView";
 
 const MapPage = () => {
   return (
@@ -20,6 +21,7 @@ const MapPage = () => {
       <Popup />
       <SafariTimer />
       <SafariEndScreen />
+      <DistancesView />
     </div>
   );
 };

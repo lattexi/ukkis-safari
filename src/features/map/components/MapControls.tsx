@@ -6,7 +6,7 @@ const MapControls = () => {
   const { toggleSidebar } = useNotificationStore();
 
   return (
-    <div className="absolute bottom-10 right-4 flex flex-col justify-center space-y-3">
+    <div className="absolute bottom-10 right-4 flex flex-col justify-center space-y-3 z-35">
       <button
         className="bg-white/95 w-16 h-16 flex justify-center items-center rounded-xl shadow-lg cursor-pointer hover:scale-106 hover:bg-white transition-all"
         // onClick={handleCenterMap}

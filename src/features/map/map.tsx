@@ -42,7 +42,8 @@ const LiveMap = () => {
   const userMarkerRef = useRef<Marker | null>(null);
   const userPosRef = useRef<GeolocationPosition | null>(null);
   const userHeadingRef = useRef<number | null>(null);
-  const headingSourceRef = useRef<"geo" | "compass" | null>(null);
+
+  const ignoreCompassRef = useRef(false);
 
   const api = useSettingsStore((state) => state.apiUrl);
   const token = useSettingsStore((state) => state.apiKey);
@@ -58,11 +59,13 @@ const LiveMap = () => {
     console.log("Selected IDs on map:", selectedIdsRef.current);
   }, [selectedVehicleIds]);
 
+  // Aseta kartan bearing
   const setMapBearing = (deg: number) => {
     if (!mapRef.current) return;
-    mapRef.current.easeTo({ bearing: deg, duration: 150 });
+    mapRef.current.setBearing(deg);
   };
 
+  // Päivitä oma markkeri kartalle
   const updateUserMarker = (lng: number, lat: number) => {
     if (!mapRef.current) return;
 
@@ -88,10 +91,14 @@ const LiveMap = () => {
     }
   };
 
+  // Sovita kartta valittuihin ajoneuvoihin ja omaan sijaintiin
   const fitToSelected = () => {
-    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (!map) return;
     const bounds = new maplibregl.LngLatBounds();
     let has = false;
+
+    ignoreCompassRef.current = true;
 
     // 1) valitut ajoneuvot
     for (const [id, pos] of lastPosRef.current) {
@@ -108,13 +115,19 @@ const LiveMap = () => {
       has = true;
     }
 
-    if (has) {
-      mapRef.current.fitBounds(bounds, {
-        padding: 140,
-        maxZoom: 16,
-        duration: 600,
-      });
-    }
+    if (!has) return;
+
+    ignoreCompassRef.current = true;
+
+    map.fitBounds(bounds, {
+      padding: 10,
+      maxZoom: 16,
+      duration: 600,
+      bearing: map.getBearing(),
+    });
+    map.once("moveend", () => {
+      ignoreCompassRef.current = false;
+    });
   };
 
   useEffect(() => {
@@ -141,15 +154,14 @@ const LiveMap = () => {
           userPosRef.current = pos;
           const { latitude, longitude, heading } = pos.coords;
 
-          // Päivitä oma markkeri
           updateUserMarker(longitude, latitude);
 
           // Käytä GPS-headingiä jos saatavilla (yleensä vain liikkeessä)
-          if (typeof heading === "number" && isFinite(heading)) {
+          if (typeof heading === "number") {
             userHeadingRef.current = heading;
-            // vaihda geo
-            headingSourceRef.current = "compass";
-            setMapBearing(heading);
+            if (!ignoreCompassRef.current) {
+              setMapBearing(heading);
+            }
           }
 
           if (firstUserFix) {
@@ -163,81 +175,6 @@ const LiveMap = () => {
         { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
       );
     }
-
-    const enableCompass = () => {
-      const handle = (ev: DeviceOrientationEvent) => {
-        const iosHeading = (ev as any).webkitCompassHeading as
-          | number
-          | undefined;
-        const alpha = ev.alpha as number | null;
-
-        let heading: number | null = null;
-        if (typeof iosHeading === "number") {
-          console.log("iOS compass heading:", iosHeading);
-          heading = iosHeading; // iOS: 0 = pohjoinen, myötäpäivään
-        } else if (typeof alpha === "number") {
-          console.log("Android compass alpha:", alpha);
-          heading = 360 - alpha; // Android/Chrome: muunnos
-        }
-
-        if (heading == null || !isFinite(heading)) return;
-
-        if (headingSourceRef.current !== "geo") {
-          userHeadingRef.current = heading;
-          headingSourceRef.current = "compass";
-          setMapBearing(heading);
-        }
-      };
-
-      window.addEventListener("deviceorientation", handle, true);
-      cleanupFns.push(() =>
-        window.removeEventListener("deviceorientation", handle, true),
-      );
-    };
-
-    const tryStartCompass = () => {
-      const D: any = (window as any).DeviceOrientationEvent;
-      console.log("DeviceOrientationEvent:", D);
-      console.log(
-        "has requestPermission:",
-        D && typeof D.requestPermission === "function",
-      );
-
-      if (D && typeof D.requestPermission === "function") {
-        const el = containerRef.current!;
-        if (!el) return;
-
-        const onFirstGesture = () => {
-          D.requestPermission()
-            .then((res: string) => {
-              console.log("DeviceOrientation permission result:", res);
-              if (res === "granted") {
-                enableCompass();
-              } else {
-                console.warn(
-                  "DeviceOrientation permission denied, result:",
-                  res,
-                );
-              }
-            })
-            .catch((e: unknown) => {
-              console.error("DeviceOrientation permission request failed:", e);
-            });
-
-          el.removeEventListener("click", onFirstGesture);
-          el.removeEventListener("touchend", onFirstGesture);
-        };
-
-        el.addEventListener("click", onFirstGesture, { once: true });
-        el.addEventListener("touchend", onFirstGesture, { once: true });
-      } else {
-        // Android/desktop
-        enableCompass();
-        console.log("Compass enabled without permission request");
-      }
-    };
-
-    tryStartCompass();
 
     // 2) Yhdistä Traccariin WebSocketilla
 
@@ -260,8 +197,8 @@ const LiveMap = () => {
     };
     ws.onclose = (ev) => {
       console.warn("Traccar socket closed:", {
-        code: ev.code, // esim. 1006 = abnormal closure (usein handshake fail)
-        reason: ev.reason, // jos proxy/serveri antaa syyn
+        code: ev.code,
+        reason: ev.reason,
         wasClean: ev.wasClean,
       });
     };

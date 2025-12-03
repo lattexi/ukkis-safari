@@ -84,6 +84,11 @@ const LiveMap = () => {
         )
         .addTo(mapRef.current);
       userMarkerRef.current = m;
+
+      //Update user location to map store
+      const setUserCoordinates = useMapStore.getState().setUserCoordinates;
+      setUserCoordinates(lat, lng);
+      //
     } else {
       m.setLngLat([lng, lat]);
     }
@@ -295,106 +300,6 @@ const LiveMap = () => {
         markersRef.current.set(p.deviceId, m);
       } else {
         m.setLngLat(lngLat);
-      }
-    };
-    const setMapBearing = (deg: number) => {
-      if (!mapRef.current) return;
-      mapRef.current.easeTo({ bearing: deg, duration: 150 });
-    };
-
-    const updateUserMarker = (lng: number, lat: number) => {
-      if (!mapRef.current) return;
-
-      let m = userMarkerRef.current;
-      if (!m) {
-        m = new maplibregl.Marker({
-          element: createUserMarkerElement("#0ea5e9"), // oma väri tänne
-          draggable: false,
-          rotationAlignment: "map",
-        })
-          .setLngLat([lng, lat])
-          .setPopup(
-            new maplibregl.Popup({ closeButton: false }).setHTML(
-              `<div style="font-size:12px; color: black;">
-             <strong>Oma sijainti</strong>
-           </div>`,
-            ),
-          )
-          .addTo(mapRef.current);
-        userMarkerRef.current = m;
-
-        //Update user location to map store
-        const setUserCoordinates = useMapStore.getState().setUserCoordinates;
-        setUserCoordinates(lat, lng);
-        //
-      } else {
-        m.setLngLat([lng, lat]);
-      }
-    };
-
-    // const fitToAllMarkers = () => {
-    //   const coords = [...lastPosRef.current.values()].map((p) => [
-    //     p.longitude,
-    //     p.latitude,
-    //   ]) as [number, number][];
-
-    //   if (!coords.length || !mapRef.current) return;
-
-    //   const bounds = new maplibregl.LngLatBounds();
-    //   coords.forEach((c) => bounds.extend(c));
-    //   mapRef.current.fitBounds(bounds, {
-    //     padding: 60,
-    //     maxZoom: 16,
-    //     duration: 600,
-    //   });
-    // };
-
-    // const fitToSelected = () => {
-    //   if (!mapRef.current) return;
-    //   const bounds = new maplibregl.LngLatBounds();
-    //   let has = false;
-
-    //   for (const [id, pos] of lastPosRef.current) {
-    //     if (selectedIdsRef.current.has(id)) {
-    //       bounds.extend([pos.longitude, pos.latitude]);
-    //       has = true;
-    //     }
-    //   }
-    //   if (has) {
-    //     mapRef.current.fitBounds(bounds, {
-    //       padding: 140,
-    //       maxZoom: 16,
-    //       duration: 600,
-    //     });
-    //   }
-    // };
-
-    const fitToSelected = () => {
-      if (!mapRef.current) return;
-      const bounds = new maplibregl.LngLatBounds();
-      let has = false;
-
-      // 1) valitut ajoneuvot
-      for (const [id, pos] of lastPosRef.current) {
-        if (selectedIdsRef.current.has(id)) {
-          bounds.extend([pos.longitude, pos.latitude]);
-          has = true;
-        }
-      }
-
-      // 2) oma sijainti
-      const up = userPosRef.current;
-      if (up) {
-        bounds.extend([up.coords.longitude, up.coords.latitude]);
-        has = true;
-      }
-
-      if (has) {
-        mapRef.current.fitBounds(bounds, {
-          padding: 140,
-          maxZoom: 16,
-          duration: 600,
-        });
       }
     };
 

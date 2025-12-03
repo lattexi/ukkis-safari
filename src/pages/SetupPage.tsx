@@ -19,11 +19,12 @@ const SetupPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-icy-mint relative">
+    <div className="w-full h-screen bg-icy-mint relative overflow-y-hidden">
       <Header title="Valitse safarin ajoneuvot" backButton />
       {/* Container for vehicle selection */}
       <div className="p-4 space-y-4">
-        <Searchbar placeholder="Hae ajoneuvoa..." />
+        {/* Searchbar functionality coming soon!! */}
+        {/* <Searchbar placeholder="Hae ajoneuvoa..." /> */}
         <VehicleList />
       </div>
       <VehicleSummary isLoading={isLoading} onStart={handleStart} />

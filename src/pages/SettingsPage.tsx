@@ -29,7 +29,7 @@ const marks = [
 
 const SettingsPage = () => {
   return (
-    <div className="w-full h-screen bg-icy-mint ">
+    <div className="w-full h-screen bg-icy-mint overflow-hidden">
       <Header title="Asetukset" backButton />
 
       {/* Scrollable view for settings */}

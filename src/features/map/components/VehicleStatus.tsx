@@ -17,7 +17,6 @@ const VehicleStatus = () => {
   const userCoordinates = useMapStore((s) => s.userCoordinates);
   const maxDistanceMeters = useSettingsStore((s) => s.alertRange);
   const { showPopup, addNotification } = useNotificationStore();
-  const notificationList = useNotificationStore((s) => s.notificationList);
 
   const toggleDistancesView = useMapStore((state) => state.toggleDistancesView);
 
@@ -143,16 +142,8 @@ const VehicleStatus = () => {
           timestamp: new Date().toISOString(),
         });
       }
-      console.log("NOTIFICATIONS", notificationList);
     });
-  }, [
-    distances,
-    maxDistanceMeters,
-    showPopup,
-    alerted,
-    addNotification,
-    notificationList,
-  ]);
+  }, [distances, maxDistanceMeters, showPopup, alerted, addNotification]);
 
   return (
     <div

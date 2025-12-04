@@ -9,14 +9,14 @@ const ProfileList = () => {
   const apiUrl = useSettingsStore((state) => state.apiUrl);
 
   // 20 mock user profiles for testing purposes, for data cards
-  const mockProfiles: Profile[] = Array.from({ length: 20 }, (_, index) => ({
-    id: (index + 1).toString(),
-    name: `User ${index + 1}`,
-    uniqueId: `unique-id-${index + 1}`,
-    attributes: {
-      Safarit: Math.floor(Math.random() * 10), // Random safari count between 0-9
-    },
-  }));
+  // const mockProfiles: Profile[] = Array.from({ length: 20 }, (_, index) => ({
+  //   id: (index + 1).toString(),
+  //   name: `User ${index + 1}`,
+  //   uniqueId: `unique-id-${index + 1}`,
+  //   attributes: {
+  //     Safarit: Math.floor(Math.random() * 10), // Random safari count between 0-9
+  //   },
+  // }));
 
   useEffect(() => {
     const fetchProfiles = async () => {

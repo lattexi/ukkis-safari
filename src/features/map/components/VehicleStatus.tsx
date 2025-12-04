@@ -145,7 +145,14 @@ const VehicleStatus = () => {
       }
       console.log("NOTIFICATIONS", notificationList);
     });
-  }, [distances, maxDistanceMeters, showPopup, alerted]);
+  }, [
+    distances,
+    maxDistanceMeters,
+    showPopup,
+    alerted,
+    addNotification,
+    notificationList,
+  ]);
 
   return (
     <div

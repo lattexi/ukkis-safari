@@ -77,7 +77,7 @@ const EndSafari = () => {
     <div className="absolute top-5 right-5 flex justify-end">
       <button
         className={cn(
-          "ml-auto bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-danger-text transition-all",
+          "ml-auto bg-linear-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl flex items-center cursor-pointer hover:scale-106 hover:bg-danger-text transition-all",
         )}
         onClick={toggleSafariEndScreen}
       >

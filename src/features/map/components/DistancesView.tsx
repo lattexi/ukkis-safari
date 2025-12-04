@@ -86,7 +86,7 @@ const DistancesView = () => {
     >
       <div className="relative bg-white py-6 rounded-2xl shadow-xl w-1/2 flex flex-col items-center gap-4 overflow-hidden">
         {/* TÄHÄN SISÄLTÖ */}
-        <div className="text-white bg-gradient-to-br from-icy-mint/80 via-icy-mint to-icy-blue/90 rounded-full p-4 my-4 shadow-lg">
+        <div className="text-white bg-linear-to-br from-icy-mint/80 via-icy-mint to-icy-blue/90 rounded-full p-4 my-4 shadow-lg">
           <MdSnowmobile size={30} />
         </div>
         <div className="w-4/5 flex flex-col items-center gap-2">
@@ -125,7 +125,7 @@ const DistancesView = () => {
           <div className="flex flex-row justify-between w-full py-4 gap-4">
             <button
               onClick={toggleDistancesView}
-              className="px-4 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
+              className="px-4 py-4 bg-linear-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
             >
               <p>Palaa karttanäkymään</p>
             </button>

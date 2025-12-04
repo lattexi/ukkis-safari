@@ -45,12 +45,12 @@ const VehicleList = ({}: VehicleListProps) => {
 
   return (
     <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-64px-96px)] pb-24">
-      {/* {vehicles.map((vehicle) => (
-        <VehicleCard key={vehicle.id} {...vehicle} />
-      ))} */}
-      {mockVehicles.map((vehicle) => (
+      {vehicles.map((vehicle) => (
         <VehicleCard key={vehicle.id} {...vehicle} />
       ))}
+      {/* {mockVehicles.map((vehicle) => (
+        <VehicleCard key={vehicle.id} {...vehicle} />
+      ))} */}
     </div>
   );
 };

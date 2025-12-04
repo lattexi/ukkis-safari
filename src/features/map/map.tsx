@@ -41,38 +41,30 @@ const LiveMap = () => {
 
   const userMarkerRef = useRef<Marker | null>(null);
   const userPosRef = useRef<GeolocationPosition | null>(null);
-  const userHeadingRef = useRef<number | null>(null);
+  const userHeadingRef = useRef<number | undefined>(undefined);
 
-  const ignoreCompassRef = useRef(false);
+  const fitTimeoutRef = useRef<number | null>(null);
 
   const api = useSettingsStore((state) => state.apiUrl);
   const token = useSettingsStore((state) => state.apiKey);
 
-  // Valitut ajoneuvot Zustandista
   const selectedVehicleIds = useVehicleStore(
     (s) => s.selectedVehicleIds,
-    shallow, // ✅ equalityFn
+    shallow,
   );
-  // 2) Tee Set vain kun taulukko oikeasti muuttuu
+
   useEffect(() => {
     selectedIdsRef.current = new Set<number>(selectedVehicleIds.map(Number));
     console.log("Selected IDs on map:", selectedIdsRef.current);
   }, [selectedVehicleIds]);
 
-  // Aseta kartan bearing
-  const setMapBearing = (deg: number) => {
-    if (!mapRef.current) return;
-    mapRef.current.setBearing(deg);
-  };
-
-  // Päivitä oma markkeri kartalle
   const updateUserMarker = (lng: number, lat: number) => {
     if (!mapRef.current) return;
 
     let m = userMarkerRef.current;
     if (!m) {
       m = new maplibregl.Marker({
-        element: createUserMarkerElement("#0ea5e9"), // oma väri tänne
+        element: createUserMarkerElement("#0ea5e9"), // Vetäjän väri
         draggable: false,
         rotationAlignment: "map",
       })
@@ -91,16 +83,13 @@ const LiveMap = () => {
     }
   };
 
-  // Sovita kartta valittuihin ajoneuvoihin ja omaan sijaintiin
   const fitToSelected = () => {
     const map = mapRef.current;
     if (!map) return;
     const bounds = new maplibregl.LngLatBounds();
     let has = false;
 
-    ignoreCompassRef.current = true;
-
-    // 1) valitut ajoneuvot
+    // valitut ajoneuvot
     for (const [id, pos] of lastPosRef.current) {
       if (selectedIdsRef.current.has(id)) {
         bounds.extend([pos.longitude, pos.latitude]);
@@ -108,7 +97,7 @@ const LiveMap = () => {
       }
     }
 
-    // 2) oma sijainti
+    // oma sijainti
     const up = userPosRef.current;
     if (up) {
       bounds.extend([up.coords.longitude, up.coords.latitude]);
@@ -117,25 +106,80 @@ const LiveMap = () => {
 
     if (!has) return;
 
-    ignoreCompassRef.current = true;
+    const paddingOptions = {
+      top: 100,
+      bottom: 80,
+      left: 250,
+      right: 120,
+    };
 
-    map.fitBounds(bounds, {
-      padding: 10,
-      maxZoom: 16,
-      duration: 600,
-      bearing: map.getBearing(),
-    });
-    map.once("moveend", () => {
-      ignoreCompassRef.current = false;
-    });
+    const opts: maplibregl.FitBoundsOptions = {
+      padding: paddingOptions,
+      maxZoom: 20,
+      duration: 300,
+    };
+
+    const h = userHeadingRef.current;
+    if (typeof h === "number" && Number.isFinite(h)) {
+      opts.bearing = h;
+    }
+
+    map.fitBounds(bounds, opts);
+  };
+
+  const scheduleFitToSelected = () => {
+    if (fitTimeoutRef.current !== null) return;
+
+    fitTimeoutRef.current = window.setTimeout(() => {
+      fitTimeoutRef.current = null;
+      fitToSelected();
+    }, 500);
+  };
+
+  const upsertMarker = (p: TraccarPosition) => {
+    if (!mapRef.current) return;
+
+    lastPosRef.current.set(p.deviceId, p);
+
+    // Poistaa turhat markkerit
+    if (!selectedIdsRef.current.has(p.deviceId)) {
+      const existing = markersRef.current.get(p.deviceId);
+      if (existing) {
+        existing.remove();
+        markersRef.current.delete(p.deviceId);
+      }
+      return;
+    }
+
+    const marker = createMarkerElement(p.deviceId);
+
+    const lngLat: [number, number] = [p.longitude, p.latitude];
+    let m = markersRef.current.get(p.deviceId);
+    if (!m) {
+      m = new maplibregl.Marker({ element: marker, draggable: false })
+        .setLngLat(lngLat)
+        .setPopup(
+          new maplibregl.Popup({ closeButton: false }).setHTML(
+            `<div style="font-size:12px; color: black; ">
+             <strong>Device ${p.deviceId}</strong><br/>
+             ${p.fixTime ? new Date(p.fixTime).toLocaleString() : ""}
+           </div>`,
+          ),
+        )
+        .addTo(mapRef.current);
+      markersRef.current.set(p.deviceId, m);
+    } else {
+      m.setLngLat(lngLat);
+    }
+
+    scheduleFitToSelected();
   };
 
   useEffect(() => {
-    // 1) Luo kartta
     const map = new maplibregl.Map({
       container: containerRef.current as HTMLDivElement,
-      style: "https://tiles.openfreemap.org/styles/bright", // Vaihda omaan tyylitiedostoon jos haluat
-      center: [24.941, 60.173], // Helsinki default
+      style: "https://tiles.openfreemap.org/styles/bright", // Kartan tyyli
+      center: [24.941, 60.173],
       zoom: 11,
     });
     mapRef.current = map;
@@ -143,11 +187,9 @@ const LiveMap = () => {
       console.error("MapLibre error event:", e.error);
     });
 
-    let firstUserFix = true;
     let watchId: number | null = null;
-    const cleanupFns: Array<() => void> = [];
 
-    // 5a) GPS watch: sijainti + mahdollinen heading liikkeessä
+    // GPS seuranta
     if ("geolocation" in navigator) {
       watchId = navigator.geolocation.watchPosition(
         (pos) => {
@@ -156,18 +198,11 @@ const LiveMap = () => {
 
           updateUserMarker(longitude, latitude);
 
-          // Käytä GPS-headingiä jos saatavilla (yleensä vain liikkeessä)
-          if (typeof heading === "number") {
+          if (typeof heading === "number" && Number.isFinite(heading)) {
             userHeadingRef.current = heading;
-            if (!ignoreCompassRef.current) {
-              setMapBearing(heading);
-            }
           }
 
-          if (firstUserFix) {
-            firstUserFix = false;
-            fitToSelected();
-          }
+          scheduleFitToSelected();
         },
         (err) => {
           console.warn("Geolocation error:", err);
@@ -176,8 +211,7 @@ const LiveMap = () => {
       );
     }
 
-    // 2) Yhdistä Traccariin WebSocketilla
-
+    // Websocket yhteys
     const u = new URL(api);
     u.protocol = "wss:";
     u.pathname = `${u.pathname.replace(/\/$/, "")}/socket`;
@@ -203,44 +237,6 @@ const LiveMap = () => {
       });
     };
 
-    const upsertMarker = (p: TraccarPosition) => {
-      if (!mapRef.current) return;
-
-      // Päivitä välimuisti aina, jotta saadaan marker takaisin näkyviin jos valinta muuttuu
-      lastPosRef.current.set(p.deviceId, p);
-
-      // Jos laite EI ole valittuna -> poista/piilota marker ja poistu
-      if (!selectedIdsRef.current.has(p.deviceId)) {
-        const existing = markersRef.current.get(p.deviceId);
-        if (existing) {
-          existing.remove();
-          markersRef.current.delete(p.deviceId);
-        }
-        return;
-      }
-
-      const marker = createMarkerElement(p.deviceId);
-
-      const lngLat: [number, number] = [p.longitude, p.latitude];
-      let m = markersRef.current.get(p.deviceId);
-      if (!m) {
-        m = new maplibregl.Marker({ element: marker, draggable: false })
-          .setLngLat(lngLat)
-          .setPopup(
-            new maplibregl.Popup({ closeButton: false }).setHTML(
-              `<div style="font-size:12px; color: black; ">
-             <strong>Device ${p.deviceId}</strong><br/>
-             ${p.fixTime ? new Date(p.fixTime).toLocaleString() : ""}
-           </div>`,
-            ),
-          )
-          .addTo(mapRef.current);
-        markersRef.current.set(p.deviceId, m);
-      } else {
-        m.setLngLat(lngLat);
-      }
-    };
-
     ws.onmessage = (msg) => {
       try {
         const data: TraccarSocketPayload = JSON.parse(msg.data as string);
@@ -249,11 +245,11 @@ const LiveMap = () => {
         if (typeof data === "object" && "positions" in data) {
           const positions = data.positions ?? [];
           positions.forEach(upsertMarker);
-          fitToSelected();
+          scheduleFitToSelected();
           return;
         }
 
-        // Tilanne 2: yksittäinen päivitys (usein position-objekti)
+        // Tilanne 2: yksittäinen päivitys (position-objekti)
         const maybePosition = data as Partial<TraccarPosition>;
         if (
           typeof maybePosition === "object" &&
@@ -263,7 +259,6 @@ const LiveMap = () => {
         ) {
           upsertMarker(maybePosition as TraccarPosition);
         }
-        // (Laitteiden metat päivittyvät joskus yksittäin – niitä ei tarvita markkerin piirtämiseen)
       } catch (e) {
         console.error("Failed to parse Traccar message:", e, msg.data);
       }
@@ -276,7 +271,10 @@ const LiveMap = () => {
       markersRef.current.clear();
       lastPosRef.current.clear();
       if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-      cleanupFns.forEach((fn) => fn());
+      if (fitTimeoutRef.current !== null) {
+        clearTimeout(fitTimeoutRef.current);
+        fitTimeoutRef.current = null;
+      }
     };
   }, []);
 

@@ -24,7 +24,7 @@ const ProfilePage = () => {
 
       <div className="p-4 space-y-4 flex flex-col gap-6 px-20">
         <Searchbar
-          placeholder="Hae käyttäjää..."
+          placeholder="Hae käyttäjää........."
           className=" m-auto max-w-[720px] w-full"
         />
         <ProfileList />

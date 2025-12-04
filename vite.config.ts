@@ -28,7 +28,7 @@ export default defineConfig({
     //   cert: fs.readFileSync("./certs/dev.pem"),
     // },
   },
-  base: "/~miikavs/ukkis/",
+  base: "/~lauralek/dist/",
   build: {
     // älä downlevlaa liikaa, ettei __publicField-helperiä tarvita erikseen
     target: "es2022",

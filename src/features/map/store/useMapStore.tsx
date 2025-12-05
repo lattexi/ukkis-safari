@@ -36,7 +36,7 @@ const useMapStore = create<MapState>()((set) => ({
   showDistancesView: false,
   lockMapToNorth: true,
   lockMapToUser: false,
-  headingDeg: null,
+  headingDeg: 90,
 
   toggleDistancesView: () =>
     set((state) => ({ showDistancesView: !state.showDistancesView })),

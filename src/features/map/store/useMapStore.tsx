@@ -9,6 +9,9 @@ type MapState = {
   safariDuration: string;
   showSafariEndScreen: boolean;
   showDistancesView: boolean;
+  lockMapToNorth: boolean;
+  lockMapToUser: boolean;
+  headingDeg: number | null;
 
   // actions
   setUserCoordinates: (latitude: string, longitude: string) => void;
@@ -20,6 +23,9 @@ type MapState = {
   setSafariDuration: (duration: string) => void;
   toggleSafariEndScreen: () => void;
   toggleDistancesView: () => void;
+  toggleLockMapToNorth: () => void;
+  toggleLockMapToUser: () => void;
+  setHeadingDeg: (deg: number | null) => void;
 };
 
 const useMapStore = create<MapState>()((set) => ({
@@ -28,6 +34,9 @@ const useMapStore = create<MapState>()((set) => ({
   safariDuration: "00:00:00",
   showSafariEndScreen: false,
   showDistancesView: false,
+  lockMapToNorth: true,
+  lockMapToUser: false,
+  headingDeg: null,
 
   toggleDistancesView: () =>
     set((state) => ({ showDistancesView: !state.showDistancesView })),
@@ -53,6 +62,11 @@ const useMapStore = create<MapState>()((set) => ({
     set((state) => ({
       showSafariEndScreen: !state.showSafariEndScreen,
     })),
+  toggleLockMapToNorth: () =>
+    set((state) => ({ lockMapToNorth: !state.lockMapToNorth })),
+  toggleLockMapToUser: () =>
+    set((state) => ({ lockMapToUser: !state.lockMapToUser })),
+  setHeadingDeg: (deg: number | null) => set({ headingDeg: deg }),
 }));
 
 export default useMapStore;

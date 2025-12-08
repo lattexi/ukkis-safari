@@ -5,6 +5,7 @@ type StatusFieldProps = {
   ButtonColor?: string;
   ButtonIcon?: React.ReactNode;
   ButtonText?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const StatusField = ({
@@ -12,11 +13,13 @@ const StatusField = ({
   ButtonColor,
   ButtonIcon,
   ButtonText,
+  onClick,
 }: StatusFieldProps) => {
   return (
     <div className="flex bg-icy-mint/50 rounded-lg px-4 py-3 items-center">
       <div className="text-dark-navy-purple font-semibold">{children}</div>
       <button
+        onClick={onClick}
         className={cn(
           `ml-auto px-4 py-2 rounded-lg shadow-md hover:bg-dark-navy-purple`,
           ButtonColor ? ButtonColor : "bg-icy-blue",

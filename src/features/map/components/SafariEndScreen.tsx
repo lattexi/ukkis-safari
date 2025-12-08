@@ -7,6 +7,7 @@ import { FaClock, FaStop, FaUser } from "react-icons/fa6";
 import useProfileStore from "@/features/profiles/store/useProfileStore";
 import { useNavigate } from "react-router";
 import useNotificationStore from "@/features/map/store/useNotificationStore";
+import useSettingsStore from "@/features/settings/store/useSettingsStore";
 
 const updateDriverSafariCount = async (
   driverId: number,
@@ -17,14 +18,16 @@ const updateDriverSafariCount = async (
   console.log("Safari count: ", safariCount);
   console.log("Profile info: ", driverId, profileName, uniqueId, safariCount);
 
+  
+
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_TRACCAR_API_URL}/drivers/${driverId}`,
+      `${useSettingsStore.getState().apiUrl}/drivers/${driverId}`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_TRACCAR_API_TOKEN}`,
+          Authorization: `Bearer ${useSettingsStore.getState().apiKey}`,
           // Authorization: `Basic ${btoa(`${import.meta.env.VITE_TRACCAR_EMAIL}:${import.meta.env.VITE_TRACCAR_PASSWORD}`)}`,
         },
         body: JSON.stringify({
@@ -74,7 +77,7 @@ const SafariEndScreen = () => {
     clearVehicles();
     clearProfile();
     clearNotifications();
-    navigate("/~miikavs/ukkis/profile");
+    navigate(`${import.meta.env.VITE_PATH}/profile`);
   };
 
   useEffect(() => {
@@ -92,8 +95,8 @@ const SafariEndScreen = () => {
       <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
 
       <div className="relative bg-white pb-6 rounded-2xl shadow-xl w-1/2 flex flex-col items-center gap-4 overflow-hidden">
-        <div className="h-2 w-full bg-gradient-to-r from-icy-blue via-deep-violet-navy to-dark-navy-purple"></div>
-        <div className="text-white bg-gradient-to-br from-red-400 to-red-600 rounded-full p-8 my-4 shadow-lg">
+        <div className="h-2 w-full bg-linear-to-r from-icy-blue via-deep-violet-navy to-dark-navy-purple" />
+        <div className="text-white bg-linear-to-br from-red-400 to-red-600 rounded-full p-8 my-4 shadow-lg">
           <FaStop size={40} />
         </div>
         <h1 className="text-4xl font-bold text-dark-navy-purple mb-4">
@@ -101,21 +104,21 @@ const SafariEndScreen = () => {
         </h1>
         <div className="w-4/5 flex flex-col items-center gap-2">
           <div className="text-center text-dark-navy-purple justify-between w-full text-lg flex flex-row gap-6">
-            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-linear-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
               <div className="w-min p-4 bg-white rounded-2xl">
                 <FaClock className="text-icy-blue" size={30} />
               </div>
               <p className="font-bold text-2xl">{safariDuration}</p>
               <p className="text-sm">Safarin kesto</p>
             </div>
-            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-linear-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
               <div className="w-min p-4 bg-white rounded-2xl">
                 <MdSnowmobile className="text-icy-blue" size={30} />
               </div>
               <p className="font-bold text-2xl">{vehiclesCount}</p>
               <p className="text-sm">Ajoneuvojen määrä</p>
             </div>
-            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-gradient-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
+            <div className="flex-1 flex flex-col gap-2 justify-center items-center bg-linear-to-br from-icy-mint/50 via-icy-mint/40 to-icy-blue/20 p-4 rounded-xl border border-icy-mint/80">
               <div className="w-min p-4 bg-white rounded-2xl">
                 <FaUser className="text-icy-blue" size={30} />
               </div>
@@ -126,13 +129,13 @@ const SafariEndScreen = () => {
           <div className="flex flex-row justify-between w-full py-4 gap-4">
             <button
               onClick={toggleSafariEndScreen}
-              className="px-4 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
+              className="px-4 py-4 bg-linear-to-r from-gray-100 to-gray-200 text-black rounded-xl hover:bg-gray-300 transition cursor-pointer items-center gap-2 justify-center font-bold flex flex-1 text-xl shadow-lg"
             >
               <p>Jatka safaria</p>
             </button>
             <button
               onClick={handleClick}
-              className="px-4 py-4 bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:bg-red-600 transition cursor-pointer flex items-center gap-2 justify-center font-bold flex-1 text-xl shadow-lg"
+              className="px-4 py-4 bg-linear-to-r from-red-500 to-red-600 rounded-xl hover:bg-red-600 transition cursor-pointer flex items-center gap-2 justify-center font-bold flex-1 text-xl shadow-lg"
             >
               <FaStop className="text-white" size={20} />
               <p>Lopeta safari</p>

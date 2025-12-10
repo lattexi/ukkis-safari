@@ -21,7 +21,7 @@ const StatusField = ({
       <button
         onClick={onClick}
         className={cn(
-          `ml-auto px-4 py-2 rounded-lg shadow-md hover:bg-dark-navy-purple`,
+          `ml-auto px-4 cursor-pointer py-2 rounded-lg shadow-md hover:bg-dark-navy-purple`,
           ButtonColor ? ButtonColor : "bg-icy-blue",
         )}
       >

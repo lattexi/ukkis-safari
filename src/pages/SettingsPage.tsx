@@ -9,6 +9,8 @@ import { FaServer } from "react-icons/fa6";
 import { FaLock } from "react-icons/fa6";
 import { FaKey } from "react-icons/fa6";
 import { FaBell } from "react-icons/fa6";
+import { FaRoute } from "react-icons/fa";
+import RoutesUploader from "@/features/settings/components/RoutesUploader";
 
 const MAX = 2000;
 const MIDDLE = 1000;
@@ -29,9 +31,7 @@ const marks = [
   },
 ];
 
-
 const SettingsPage = () => {
-  
   const apiUrl = useSettingsStore((state) => state.apiUrl);
   const apiKey = useSettingsStore((state) => state.apiKey);
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
@@ -45,11 +45,11 @@ const SettingsPage = () => {
           Authorization: `Bearer ${apiKey}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Health check failed");
       }
-  
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -57,7 +57,6 @@ const SettingsPage = () => {
       return null;
     }
   };
-
 
   const testConnection = async (e: React.MouseEvent<HTMLButtonElement>) => {
     setApiConnected(null);
@@ -68,13 +67,14 @@ const SettingsPage = () => {
     } else {
       setApiConnected(false);
     }
-  }
-  
+  };
+
   useEffect(() => {
     // Optionally, you can perform an initial health check on component mount
-    testConnection(new MouseEvent('click') as unknown as React.MouseEvent<HTMLButtonElement>);
+    testConnection(
+      new MouseEvent("click") as unknown as React.MouseEvent<HTMLButtonElement>,
+    );
   }, []);
-
 
   return (
     <div className="w-full h-screen bg-icy-mint overflow-hidden">
@@ -101,7 +101,13 @@ const SettingsPage = () => {
             />
             <StatusField ButtonText="Testaa Yhteys" onClick={testConnection}>
               {/* Change this to use some kind of functionality */}
-              <div>{apiConnected === null ? "Testataan yhteyttä..." : apiConnected ? "Yhdistetty" : "Yhteys epäonnistui"}</div>
+              <div>
+                {apiConnected === null
+                  ? "Testataan yhteyttä..."
+                  : apiConnected
+                    ? "Yhdistetty"
+                    : "Yhteys epäonnistui"}
+              </div>
             </StatusField>
           </DataContainer>
         </form>
@@ -156,6 +162,19 @@ const SettingsPage = () => {
               sliderMax={MAX}
               sliderStep={100}
             />
+          </DataContainer>
+        </form>
+        <form autoComplete="off">
+          <DataContainer
+            ContainerHeader="Kelkkareitit"
+            ContainerDescription="Hallitse sovelluksen tallentamia tietoja"
+            HeaderIcon={
+              <div className="text-3xl bg-green-500/20 p-4 rounded-xl">
+                <FaRoute className="text-green-500 text-2xl" />
+              </div>
+            }
+          >
+            <RoutesUploader />
           </DataContainer>
         </form>
       </div>

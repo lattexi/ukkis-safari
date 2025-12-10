@@ -87,7 +87,7 @@ const LiveMap = () => {
 
       //Update user location to map store
       const setUserCoordinates = useMapStore.getState().setUserCoordinates;
-      setUserCoordinates(lat, lng);
+      setUserCoordinates(lat.toString(), lng.toString());
       //
     } else {
       m.setLngLat([lng, lat]);
@@ -280,8 +280,8 @@ const LiveMap = () => {
         useMapStore.getState().setVehiclesCoordinates;
       setVehiclesCoordinates({
         id: p.deviceId,
-        latitude: p.latitude,
-        longitude: p.longitude,
+        latitude: p.latitude.toString(),
+        longitude: p.longitude.toString(),
       });
 
       let m = markersRef.current.get(p.deviceId);

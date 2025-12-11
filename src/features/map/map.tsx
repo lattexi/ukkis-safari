@@ -50,6 +50,8 @@ const LiveMap = () => {
   const api = useSettingsStore((state) => state.apiUrl);
   const token = useSettingsStore((state) => state.apiKey);
 
+  const { setHeadingDeg } = useMapStore();
+
   const selectedVehicleIds = useVehicleStore(
     (s) => s.selectedVehicleIds,
     shallow,
@@ -256,6 +258,9 @@ const LiveMap = () => {
           const { latitude, longitude, heading } = pos.coords;
 
           updateUserMarker(longitude, latitude);
+
+          //TÄHÄN laita heading map storeen
+          setHeadingDeg(heading);
 
           if (typeof heading === "number" && Number.isFinite(heading)) {
             userHeadingRef.current = heading;

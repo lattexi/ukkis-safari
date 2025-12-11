@@ -50,6 +50,9 @@ const LiveMap = () => {
   const api = useSettingsStore((state) => state.apiUrl);
   const token = useSettingsStore((state) => state.apiKey);
 
+  const lockMapToNorth = useMapStore((state) => state.lockMapToNorth);
+  const lockMapToUser = useMapStore((state) => state.lockMapToUser);
+
   const { setHeadingDeg } = useMapStore();
 
   const selectedVehicleIds = useVehicleStore(
@@ -61,6 +64,12 @@ const LiveMap = () => {
     selectedIdsRef.current = new Set<number>(selectedVehicleIds.map(Number));
     console.log("Selected IDs on map:", selectedIdsRef.current);
   }, [selectedVehicleIds]);
+
+  useEffect(() => {
+    mapRef.current?.setBearing(
+      lockMapToNorth ? 0 : userHeadingRef.current || 0,
+    );
+  }, [lockMapToNorth]);
 
   const updateUserMarker = (lng: number, lat: number) => {
     if (!mapRef.current) return;
@@ -94,6 +103,7 @@ const LiveMap = () => {
   const fitToSelected = () => {
     const map = mapRef.current;
     if (!map) return;
+    if (!lockMapToUser) return;
     const bounds = new maplibregl.LngLatBounds();
     let has = false;
 
@@ -129,7 +139,7 @@ const LiveMap = () => {
 
     const h = userHeadingRef.current;
     if (typeof h === "number" && Number.isFinite(h)) {
-      opts.bearing = h;
+      !lockMapToNorth ? (opts.bearing = h) : (opts.bearing = 0);
     }
 
     map.fitBounds(bounds, opts);
@@ -137,6 +147,7 @@ const LiveMap = () => {
 
   const scheduleFitToSelected = () => {
     if (fitTimeoutRef.current !== null) return;
+    if (!lockMapToUser) return;
 
     fitTimeoutRef.current = window.setTimeout(() => {
       fitTimeoutRef.current = null;

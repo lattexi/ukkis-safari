@@ -35,8 +35,8 @@ const useMapStore = create<MapState>()((set) => ({
   showSafariEndScreen: false,
   showDistancesView: false,
   lockMapToNorth: true,
-  lockMapToUser: false,
-  headingDeg: 90,
+  lockMapToUser: true,
+  headingDeg: 0,
 
   toggleDistancesView: () =>
     set((state) => ({ showDistancesView: !state.showDistancesView })),

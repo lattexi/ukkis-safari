@@ -1,12 +1,16 @@
 import DataContainer from "@/features/settings/components/DataContainer";
 import InputDataField from "@/features/settings/components/InputDataField";
 import StatusField from "@/features/settings/components/StatusField";
+import useSettingsStore from "@/features/settings/store/useSettingsStore";
 import Header from "@/shared/components/Header";
+import { useEffect, useState } from "react";
 import { FaLink } from "react-icons/fa6";
 import { FaServer } from "react-icons/fa6";
 import { FaLock } from "react-icons/fa6";
 import { FaKey } from "react-icons/fa6";
 import { FaBell } from "react-icons/fa6";
+import { FaRoute } from "react-icons/fa";
+import RoutesUploader from "@/features/settings/components/RoutesUploader";
 
 const MAX = 2000;
 const MIDDLE = 1000;
@@ -28,6 +32,50 @@ const marks = [
 ];
 
 const SettingsPage = () => {
+  const apiUrl = useSettingsStore((state) => state.apiUrl);
+  const apiKey = useSettingsStore((state) => state.apiKey);
+  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+
+  const healthCheck = async (apiUrl: string, apiKey: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/server`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Health check failed");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error during health check:", error);
+      return null;
+    }
+  };
+
+  const testConnection = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    setApiConnected(null);
+    e.preventDefault();
+    const health = await healthCheck(apiUrl, apiKey);
+    if (health) {
+      setApiConnected(true);
+    } else {
+      setApiConnected(false);
+    }
+  };
+
+  useEffect(() => {
+    // Optionally, you can perform an initial health check on component mount
+    testConnection(
+      new MouseEvent("click") as unknown as React.MouseEvent<HTMLButtonElement>,
+    );
+  }, []);
+
   return (
     <div className="w-full h-screen bg-icy-mint overflow-hidden">
       <Header title="Asetukset" backButton />
@@ -51,9 +99,15 @@ const SettingsPage = () => {
               Description="Anna koko URL osoite Traccar-API-palvelimelle"
               Icon={<FaLink className="text-dark-navy-purple w-6" />}
             />
-            <StatusField ButtonText="Testaa Yhteys">
+            <StatusField ButtonText="Testaa Yhteys" onClick={testConnection}>
               {/* Change this to use some kind of functionality */}
-              <div>Yhdistetty</div>
+              <div>
+                {apiConnected === null
+                  ? "Testataan yhteyttä..."
+                  : apiConnected
+                    ? "Yhdistetty"
+                    : "Yhteys epäonnistui"}
+              </div>
             </StatusField>
           </DataContainer>
         </form>
@@ -76,13 +130,13 @@ const SettingsPage = () => {
               Icon={<FaLock className="text-dark-navy-purple w-6" />}
               sensitive
             />
-            <StatusField
+            {/* <StatusField
               ButtonText="Päivitä Token"
               ButtonColor="bg-dark-navy-purple"
             >
-              {/* Change this to use some kind of functionality */}
+              Change this to use some kind of functionality
               <div>Token on voimassa</div>
-            </StatusField>
+            </StatusField> */}
           </DataContainer>
         </form>
 
@@ -108,6 +162,19 @@ const SettingsPage = () => {
               sliderMax={MAX}
               sliderStep={100}
             />
+          </DataContainer>
+        </form>
+        <form autoComplete="off">
+          <DataContainer
+            ContainerHeader="Kelkkareitit"
+            ContainerDescription="Hallitse sovelluksen tallentamia tietoja"
+            HeaderIcon={
+              <div className="text-3xl bg-green-500/20 p-4 rounded-xl">
+                <FaRoute className="text-green-500 text-2xl" />
+              </div>
+            }
+          >
+            <RoutesUploader />
           </DataContainer>
         </form>
       </div>

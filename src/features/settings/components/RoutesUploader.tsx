@@ -1,69 +1,14 @@
-import { useRef, useState } from "react";
+import { deleteData, fetchData, postData } from "@/shared/utils/fetchData";
+import { useEffect, useRef, useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
-
-const testObject = [
-  {
-    name: "Reitti 1",
-    geojson: {
-      type: "geojson",
-      data: {
-        type: "Feature",
-        properties: {
-          name: "GPX Track",
-        },
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [24.93545, 60.16952],
-            [24.93645, 60.17052],
-            [24.93745, 60.17152],
-            [24.93845, 60.17252],
-            [24.93945, 60.17352],
-            [24.94045, 60.17452],
-            [24.94145, 60.17552],
-            [24.94245, 60.17652],
-            [24.94345, 60.17752],
-            [24.94445, 60.17852],
-          ],
-        },
-      },
-    },
-  },
-  {
-    name: "Reitti 2",
-    geojson: {
-      type: "geojson",
-      data: {
-        type: "Feature",
-        properties: {
-          name: "GPX Track",
-        },
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [24.95545, 60.16952],
-            [24.95645, 60.17052],
-            [24.95745, 60.17152],
-            [24.95845, 60.17252],
-            [24.95945, 60.17352],
-            [24.96045, 60.17452],
-            [24.96145, 60.17552],
-            [24.96245, 60.17652],
-            [24.96345, 60.17752],
-            [24.96445, 60.17852],
-          ],
-        },
-      },
-    },
-  },
-];
 
 const RoutesUploader = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [routeName, setRouteName] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [routes, setRoutes] = useState<any[]>([]);
 
   const handleChooseFileClick = () => {
     fileInputRef.current?.click();
@@ -74,6 +19,11 @@ const RoutesUploader = () => {
       setFile(e.target.files[0]);
     }
   };
+
+  async function fetchRoutes() {
+    const data = fetchData(`${import.meta.env.VITE_SERVER_IP}/routes`);
+    setRoutes(await data);
+  }
 
   const handleUpload = async () => {
     if (!file) {
@@ -89,19 +39,23 @@ const RoutesUploader = () => {
       setIsUploading(true);
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("routeName", routeName);
+      formData.append("name", routeName);
 
-      const res = await fetch("/api/routes/upload", {
-        method: "POST",
-        body: formData,
-      });
+      console.log("Uploading file:", file.name, "with route name:", routeName);
 
-      if (!res.ok) {
-        throw new Error("Upload failed");
+      const res = await postData(
+        `${import.meta.env.VITE_SERVER_IP}/routes`,
+        formData,
+      );
+
+      console.log("Server response:", res);
+      if (res.error) {
+        throw new Error(res.error);
       }
 
       setFile(null);
       setRouteName("");
+      fetchRoutes();
       alert("Tiedosto ladattu!");
     } catch (err) {
       console.error(err);
@@ -110,6 +64,20 @@ const RoutesUploader = () => {
       setIsUploading(false);
     }
   };
+
+  const handleDeleteRoute = async (routeName: string) => {
+    try {
+      await deleteData(`${import.meta.env.VITE_SERVER_IP}/routes/${routeName}`);
+      fetchRoutes();
+    } catch (err) {
+      console.error(err);
+      alert("Reitin poisto epäonnistui");
+    }
+  };
+
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -152,6 +120,7 @@ const RoutesUploader = () => {
 
           <input
             type="text"
+            value={routeName}
             autoComplete="off"
             onChange={(e) => setRouteName(e.target.value as any)}
             className="w-full bg-icy-mint/50 rounded-lg py-3 pl-12 pr-4 border border-gray-300 text-dark-navy-purple"
@@ -179,22 +148,29 @@ const RoutesUploader = () => {
       <div>
         {/* LIST OF ROUTES */}
         <div className="flex flex-col gap-2">
-          {testObject.map((route, index) => (
-            <div
-              key={index}
-              className="w-full flex items-center justify-between bg-icy-mint/50 rounded-lg px-4 py-3 border border-gray-300"
-            >
-              <p className="text-dark-navy-purple font-semibold">
-                {route.name}
-              </p>
-              <button
-                type="button"
-                className="px-4 py-2 rounded-lg shadow-md hover:bg-danger-text bg-danger-badge text-white cursor-pointer"
+          {routes ? (
+            routes.map((route, index) => (
+              <div
+                key={index}
+                className="w-full flex items-center justify-between bg-icy-mint/50 rounded-lg px-4 py-3 border border-gray-300"
               >
-                Poista reitti
-              </button>
-            </div>
-          ))}
+                <p className="text-dark-navy-purple font-semibold">
+                  {route.name}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteRoute(route.name)}
+                  className="px-4 py-2 rounded-lg shadow-md hover:bg-danger-text bg-danger-badge text-white cursor-pointer"
+                >
+                  Poista reitti
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-dark-navy-purple text-sm">
+              Reittejä ei löytynyt
+            </p>
+          )}
         </div>
       </div>
     </div>

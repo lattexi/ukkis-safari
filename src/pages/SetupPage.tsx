@@ -1,6 +1,5 @@
 import VehicleList from "@/features/vehicles/components/VehicleList";
 import Header from "@/shared/components/Header";
-import Searchbar from "@/shared/components/Searchbar";
 import VehicleSummary from "@/features/vehicles/components/VehicleSummary";
 import { useState } from "react";
 import { useNavigate } from "react-router";

@@ -9,6 +9,7 @@ import {
 } from "@/features/map/components/Markers";
 import useSettingsStore from "@/features/settings/store/useSettingsStore";
 import useMapStore from "./store/useMapStore";
+import { fetchData } from "@/shared/utils/fetchData";
 
 type TraccarDevice = {
   id: number;
@@ -83,7 +84,6 @@ const LiveMap = () => {
       //Update user location to map store
       const setUserCoordinates = useMapStore.getState().setUserCoordinates;
       setUserCoordinates(lat.toString(), lng.toString());
-      //
     } else {
       m.setLngLat([lng, lat]);
     }
@@ -201,6 +201,49 @@ const LiveMap = () => {
     mapRef.current = map;
     map.on("error", (e) => {
       console.error("MapLibre error event:", e.error);
+    });
+
+    type Route = {
+      name: string;
+      geojson: {
+        type: string;
+        data: {
+          type: string;
+          properties: Record<string, unknown>;
+          geometry: {
+            type: string;
+            coordinates: number[][];
+          };
+        };
+      };
+    };
+
+    const routes: Promise<Route[]> = fetchData(
+      `${import.meta.env.VITE_SERVER_IP}/routes`,
+    );
+
+    map.on("load", async () => {
+      try {
+        const rts = await routes;
+        rts.forEach((route) => {
+          map.addSource(route.name, route.geojson as any);
+          map.addLayer({
+            id: route.name,
+            type: "line",
+            source: route.name,
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#FF0000",
+              "line-width": 4,
+            },
+          });
+        });
+      } catch (e) {
+        console.error("Failed to load routes:", e);
+      }
     });
 
     let watchId: number | null = null;

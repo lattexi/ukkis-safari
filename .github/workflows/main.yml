@@ -46,16 +46,18 @@ jobs:
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Deploy dist to VPS (atomic)
+      - name: Deploy dist to VPS (atomic, scp)
         run: |
           set -euo pipefail
 
+          # 1) Valmistele temp-kansio palvelimelle
           ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "mkdir -p /home/ukkohalla/ukkis-safari && rm -rf /home/ukkohalla/ukkis-safari/safari_new && mkdir -p /home/ukkohalla/ukkis-safari/safari_new"
 
-          rsync -az --delete \
-            dist/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/ukkohalla/ukkis-safari/safari_new/"
+          # 2) Kopioi distin SISÄLTÖ safari_new:iin
+          scp -r dist/* "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/ukkohalla/ukkis-safari/safari_new/"
 
+          # 3) Atominen vaihto tuotantoon
           ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "rm -rf /home/ukkohalla/ukkis-safari/safari_old || true && \
              if [ -d /home/ukkohalla/ukkis-safari/safari ]; then mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old; fi && \

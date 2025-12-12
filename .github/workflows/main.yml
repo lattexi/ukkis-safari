@@ -1,1 +1,59 @@
 name: Build & Deploy Vite SPA
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_PATH: ${{ secrets.VITE_PATH }}
+          VITE_SERVER_IP: ${{ secrets.VITE_SERVER_IP }}
+        run: npm run build
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add VPS host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy dist to VPS (atomic)
+        run: |
+          set -euo pipefail
+
+          ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "mkdir -p /home/ukkohalla/ukkis-safari && rm -rf /home/ukkohalla/ukkis-safari/safari_new && mkdir -p /home/ukkohalla/ukkis-safari/safari_new"
+
+          rsync -az --delete \
+            dist/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/ukkohalla/ukkis-safari/safari_new/"
+
+          ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "rm -rf /home/ukkohalla/ukkis-safari/safari_old || true && \
+             if [ -d /home/ukkohalla/ukkis-safari/safari ]; then mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old; fi && \
+             mv /home/ukkohalla/ukkis-safari/safari_new /home/ukkohalla/ukkis-safari/safari"

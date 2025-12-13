@@ -1,0 +1,80 @@
+name: Build & Deploy Vite SPA
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_PATH: ${{ secrets.VITE_PATH }}
+          VITE_SERVER_IP: ${{ secrets.VITE_SERVER_IP }}
+        run: npm run build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dist
+          path: dist/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-dist
+          path: dist
+
+      - name: Prepare safari_new
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            mkdir -p /home/ukkohalla/ukkis-safari/safari_new
+            rm -rf /home/ukkohalla/ukkis-safari/safari_new/*
+
+      - name: Upload dist contents to safari_new
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "dist/*"
+          target: "/home/ukkohalla/ukkis-safari/safari_new"
+
+      - name: Switch to New Deployment
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            rm -rf /home/ukkohalla/ukkis-safari/safari_old || true
+            if [ -d /home/ukkohalla/ukkis-safari/safari ]; then
+              mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old
+            fi
+            mv /home/ukkohalla/ukkis-safari/safari_new /home/ukkohalla/ukkis-safari/safari

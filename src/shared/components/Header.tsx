@@ -25,7 +25,7 @@ const Header = ({ title, backButton, settingsButton }: HeaderProps) => {
           </Link>
         )}
         {settingsButton && (
-          <Link to={`${path}/settings`} className="absolute right-4 top-3">
+          <Link to={"/settings"} className="absolute right-4 top-3">
             <button
               className={cn(
                 "ml-auto bg-dark-navy-purple text-white p-2 rounded-xl flex items-center cursor-pointer",

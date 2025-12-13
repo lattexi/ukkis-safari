@@ -47,16 +47,6 @@ jobs:
           name: build-dist
           path: dist
 
-      - name: Prepare safari_new
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            mkdir -p /home/ukkohalla/ukkis-safari/safari_new
-            rm -rf /home/ukkohalla/ukkis-safari/safari_new/*
-
       - name: Upload dist to VPS (as folder)
         uses: appleboy/scp-action@v0.1.7
         with:

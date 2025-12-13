@@ -9,9 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,28 +30,51 @@ jobs:
           VITE_SERVER_IP: ${{ secrets.VITE_SERVER_IP }}
         run: npm run build
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+          name: build-dist
+          path: dist/
 
-      - name: Add VPS host key to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
 
-      - name: Deploy dist to VPS (atomic, scp)
-        run: |
-          set -euo pipefail
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-dist
+          path: dist
 
-          ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "mkdir -p /home/ukkohalla/ukkis-safari && rm -rf /home/ukkohalla/ukkis-safari/safari_new && mkdir -p /home/ukkohalla/ukkis-safari/safari_new"
+      - name: Prepare safari_new
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            mkdir -p /home/ukkohalla/ukkis-safari/safari_new
+            rm -rf /home/ukkohalla/ukkis-safari/safari_new/*
 
-          scp -r dist/* "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/ukkohalla/ukkis-safari/safari_new/"
+      - name: Upload dist contents to safari_new
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "dist/*"
+          target: "/home/ukkohalla/ukkis-safari/safari_new"
 
-          ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "rm -rf /home/ukkohalla/ukkis-safari/safari_old || true && \
-             if [ -d /home/ukkohalla/ukkis-safari/safari ]; then mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old; fi && \
-             mv /home/ukkohalla/ukkis-safari/safari_new /home/ukkohalla/ukkis-safari/safari"
+      - name: Switch to New Deployment
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            rm -rf /home/ukkohalla/ukkis-safari/safari_old || true
+            if [ -d /home/ukkohalla/ukkis-safari/safari ]; then
+              mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old
+            fi
+            mv /home/ukkohalla/ukkis-safari/safari_new /home/ukkohalla/ukkis-safari/safari

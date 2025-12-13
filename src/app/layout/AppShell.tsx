@@ -9,12 +9,12 @@ import SettingsPage from "@/pages/SettingsPage";
 export default function AppShell() {
   return (
     <Routes>
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/" element={<ProfilePage />} />
       <Route path="/map" element={<MapPage />} />
       <Route path="/setup" element={<SetupPage />} />
       <Route path="/error" element={<ErrorPage />} />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<Navigate to="/profile" />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }

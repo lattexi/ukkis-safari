@@ -26,7 +26,6 @@ jobs:
 
       - name: Build
         env:
-          VITE_PATH: ${{ secrets.VITE_PATH }}
           VITE_SERVER_IP: ${{ secrets.VITE_SERVER_IP }}
         run: npm run build
 

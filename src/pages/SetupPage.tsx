@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 
 const SetupPage = () => {
-  const path = import.meta.env.VITE_PATH;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -13,7 +12,7 @@ const SetupPage = () => {
     setIsLoading(true);
     // Simulate a loading process
     setIsLoading(false);
-    navigate(`${path}/map`);
+    navigate("/map");
   };
 
   return (

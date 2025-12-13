@@ -18,8 +18,6 @@ const updateDriverSafariCount = async (
   console.log("Safari count: ", safariCount);
   console.log("Profile info: ", driverId, profileName, uniqueId, safariCount);
 
-  
-
   try {
     const res = await fetch(
       `${useSettingsStore.getState().apiUrl}/drivers/${driverId}`,
@@ -77,7 +75,7 @@ const SafariEndScreen = () => {
     clearVehicles();
     clearProfile();
     clearNotifications();
-    navigate(`${import.meta.env.VITE_PATH}/profile`);
+    navigate("/profile");
   };
 
   useEffect(() => {

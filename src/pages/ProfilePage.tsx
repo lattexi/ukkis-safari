@@ -10,12 +10,11 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    const path = import.meta.env.VITE_PATH;
     setIsLoading(true);
     // Simulate a loading process
 
     setIsLoading(false);
-    navigate(`${path}/setup`);
+    navigate("/setup");
   };
 
   return (

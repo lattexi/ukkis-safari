@@ -57,15 +57,14 @@ jobs:
             mkdir -p /home/ukkohalla/ukkis-safari/safari_new
             rm -rf /home/ukkohalla/ukkis-safari/safari_new/*
 
-      - name: Upload dist contents to safari_new
+      - name: Upload dist to VPS (as folder)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "dist/*"
-          target: "/home/ukkohalla/ukkis-safari/safari_new"
-
+          source: "dist"
+          target: "/home/ukkohalla/ukkis-safari"
       - name: Switch to New Deployment
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -73,6 +72,15 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
+
+            rm -rf /home/ukkohalla/ukkis-safari/safari_new
+            mkdir -p /home/ukkohalla/ukkis-safari/safari_new
+
+            cp -a /home/ukkohalla/ukkis-safari/dist/. /home/ukkohalla/ukkis-safari/safari_new/
+
+            rm -rf /home/ukkohalla/ukkis-safari/dist
+
             rm -rf /home/ukkohalla/ukkis-safari/safari_old || true
             if [ -d /home/ukkohalla/ukkis-safari/safari ]; then
               mv /home/ukkohalla/ukkis-safari/safari /home/ukkohalla/ukkis-safari/safari_old
